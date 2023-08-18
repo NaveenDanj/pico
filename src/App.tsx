@@ -4,6 +4,7 @@ import Chat from "src/pages/App/Chat";
 import Story from "src/pages/App/Story";
 import StarredMessages from "src/pages/App/StarredMessages";
 import Archived from "src/pages/App/Archived";
+import Email from "src/pages/Email/Email";
 
 function App() {
   return (
@@ -14,8 +15,8 @@ function App() {
           <Route path="story" element={<Story />} />
           <Route path="starred" element={<StarredMessages />} />
           <Route path="archived" element={<Archived />} />
-          {/* <Route path="blogs" element={<Blogs />} />
-          <Route path="contact" element={<Contact />} />
+          <Route path="email" element={<Email />} />
+          {/* <Route path="contact" element={<Contact />} />
           <Route path="*" element={<NoPage />} /> */}
         </Route>
       </Routes>

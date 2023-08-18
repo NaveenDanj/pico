@@ -1,7 +1,8 @@
 import { Outlet } from "react-router-dom"
 import Sidebar from "src/components/global/Sidebar"
 import ChatView from "src/components/chatsection/ChatView";
-// import StoryView from "src/components/story/StoryView";
+import EmailView from "src/components/email/EmailView";
+import StoryView from "src/components/story/StoryView";
 
 
 function MainLayout() {
@@ -17,6 +18,7 @@ function MainLayout() {
             <div className="tw-flex tw-flex-col tw-flex-grow">
                 <ChatView />
                 {/* <StoryView /> */}
+                {/* <EmailView /> */}
             </div>
 
         </div>
