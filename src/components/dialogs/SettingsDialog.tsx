@@ -10,6 +10,7 @@ import StorageIcon from '@mui/icons-material/Storage';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import General from './SettingsViews/General';
 import Profile from './SettingsViews/Profile';
+import Account from './SettingsViews/Account';
 
 
 export default function SettingsDialog() {
@@ -93,17 +94,11 @@ export default function SettingsDialog() {
 
                     <div className='tw-flex tw-flex-grow tw-p-3 tw-bg-[#303030] tw-overflow-y-auto'>
                         {/* <General /> */}
-                        <Profile />
+                        {/* <Profile /> */}
+                        <Account />
                     </div>
 
                 </div>
-
-                {/* <DialogActions>
-                    <Button onClick={handleClose}>Disagree</Button>
-                    <Button onClick={handleClose} autoFocus>
-                        Agree
-                    </Button>
-                </DialogActions> */}
 
             </Dialog>
         </div>

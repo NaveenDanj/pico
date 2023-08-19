@@ -9,7 +9,7 @@ import SendIcon from '@mui/icons-material/Send';
 function ChatView() {
     return (
         <>
-            <div style={{ borderBottom: '1px solid rgba(0,0,0,0.2)' }} className="tw-w-full tw-py-2 tw-px-3 tw-flex tw-justify-between">
+            <div style={{ borderBottom: '1px solid rgba(0,0,0,0.2)' }} className="tw-bg-[#272727] tw-w-full tw-py-2 tw-px-3 tw-flex tw-justify-between">
                 <div className='tw-flex tw-gap-4'>
 
                     <Avatar />

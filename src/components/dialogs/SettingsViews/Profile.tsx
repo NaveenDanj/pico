@@ -20,7 +20,7 @@ function Profile() {
                 <label className="tw-text-xs tw-text-[#878787]">About</label>
 
                 <div className="tw-flex tw-justify-between">
-                    <p className="tw-text-xs tw-my-auto tw-w-[300px]">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nam a iure perferendis maxime ipsa, libero cumque tempora soluta vel dolorem doloribus tempore sint voluptatem consequatur. Repellendus ad necessitatibus sint blanditiis.</p>
+                    <p className="tw-text-xs tw-my-auto ">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nam a iure perferendis maxime ipsa, libero cumque tempora soluta vel dolorem doloribus tempore sint voluptatem consequatur. Repellendus ad necessitatibus sint blanditiis.</p>
                     <div className=" tw-w-[29px] tw-h-[29px] tw-flex tw-justify-center tw-items-center tw-rounded-md tw-my-auto hover:tw-bg-[#4B4B4B]">
                         <ModeEditIcon sx={{ width: 14 }} />
                     </div>
