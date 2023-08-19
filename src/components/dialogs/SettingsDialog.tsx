@@ -9,6 +9,7 @@ import SettingsAccessibilityIcon from '@mui/icons-material/SettingsAccessibility
 import StorageIcon from '@mui/icons-material/Storage';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import General from './SettingsViews/General';
+import Profile from './SettingsViews/Profile';
 
 
 export default function SettingsDialog() {
@@ -90,10 +91,9 @@ export default function SettingsDialog() {
 
                     </div>
 
-                    <div className='tw-flex tw-flex-grow tw-p-3 tw-bg-[#303030]'>
-
-                        <General />
-
+                    <div className='tw-flex tw-flex-grow tw-p-3 tw-bg-[#303030] tw-overflow-y-auto'>
+                        {/* <General /> */}
+                        <Profile />
                     </div>
 
                 </div>
