@@ -1,9 +1,9 @@
-import AddBoxIcon from '@mui/icons-material/AddBox';
 import GroupIcon from '@mui/icons-material/Group';
 import SearchIcon from '@mui/icons-material/Search';
 import { Avatar } from '@mui/material';
 import ChatNameItem from 'src/components/chat/ChatNameItem';
 import './index.css'
+import AddContactDialog from 'src/components/dialogs/AddContactDialog';
 
 function Chat() {
   return (
@@ -17,10 +17,7 @@ function Chat() {
 
           <div className="tw-flex tw-gap-1 tw-my-auto">
 
-            <div className="tw-w-[45px] tw-p-2 tw-flex tw-justify-center tw-rounded-md  hover:tw-bg-[#333333]">
-              <AddBoxIcon sx={{ width: 16 }} />
-            </div>
-
+            <AddContactDialog />
 
             <div className="tw-w-[45px] tw-p-2 tw-flex tw-justify-center  tw-rounded-md hover:tw-bg-[#333333]">
               <GroupIcon sx={{ width: 16 }} />
