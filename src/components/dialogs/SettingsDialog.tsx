@@ -11,10 +11,12 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import General from './SettingsViews/General';
 import Profile from './SettingsViews/Profile';
 import Account from './SettingsViews/Account';
+import Chat from './SettingsViews/Chat';
 
 
 export default function SettingsDialog() {
     const [open, setOpen] = React.useState(false);
+    const [currentTab, setCurrentTab] = React.useState(0);
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -49,19 +51,19 @@ export default function SettingsDialog() {
 
                 <div className='tw-flex tw-w-full tw-h-full'>
 
-                    <div className='tw-w-[170px] tw-p-2 tw-bg-[#2C2C2C] tw-flex tw-flex-col tw-gap-1'>
+                    <div className='tw-w-[170px] tw-min-w-[170px] tw-p-2 tw-bg-[#2C2C2C] tw-flex tw-flex-col tw-gap-1'>
 
-                        <div className='tw-w-full tw-flex tw-p-2 tw-bg-[#37383B] tw-rounded-md hover:tw-bg-[#37383B]'>
+                        <div onClick={() => setCurrentTab(0)} className='tw-w-full tw-flex tw-p-2 tw-bg-[#37383B] tw-rounded-md hover:tw-bg-[#37383B]'>
                             <ComputerIcon className='tw-my-auto' sx={{ fontSize: 18 }} />
                             <label className='tw-text-xs tw-ml-3 tw-my-auto'>General</label>
                         </div>
 
-                        <div className='tw-w-full tw-flex tw-p-2 tw-rounded-md hover:tw-bg-[#37383B]'>
+                        <div onClick={() => setCurrentTab(1)} className='tw-w-full tw-flex tw-p-2 tw-rounded-md hover:tw-bg-[#37383B]'>
                             <KeyIcon className='tw-my-auto' sx={{ fontSize: 18 }} />
                             <label className='tw-text-xs tw-ml-3 tw-my-auto'>Account</label>
                         </div>
 
-                        <div className='tw-w-full tw-flex tw-p-2 tw-rounded-md hover:tw-bg-[#37383B]'>
+                        <div onClick={() => setCurrentTab(3)} className='tw-w-full tw-flex tw-p-2 tw-rounded-md hover:tw-bg-[#37383B]'>
                             <ChatIcon className='tw-my-auto' sx={{ fontSize: 18 }} />
                             <label className='tw-text-xs tw-ml-3 tw-my-auto'>Chats</label>
                         </div>
@@ -85,7 +87,7 @@ export default function SettingsDialog() {
 
                         </div>
 
-                        <div className='tw-w-full tw-flex tw-p-2 tw-rounded-md hover:tw-bg-[#37383B]'>
+                        <div onClick={() => setCurrentTab(2)} className='tw-w-full tw-flex tw-p-2 tw-rounded-md hover:tw-bg-[#37383B]'>
                             <AccountCircleIcon className='tw-my-auto' sx={{ fontSize: 18 }} />
                             <label className='tw-text-xs tw-ml-3 tw-my-auto'>Profile</label>
                         </div>
@@ -93,9 +95,10 @@ export default function SettingsDialog() {
                     </div>
 
                     <div className='tw-flex tw-flex-grow tw-p-3 tw-bg-[#303030] tw-overflow-y-auto'>
-                        {/* <General /> */}
-                        {/* <Profile /> */}
-                        <Account />
+                        {currentTab == 0 && <General />}
+                        {currentTab == 1 && <Account />}
+                        {currentTab == 2 && <Profile />}
+                        {currentTab == 3 && <Chat />}
                     </div>
 
                 </div>
