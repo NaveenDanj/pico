@@ -1,25 +1,17 @@
-import { Avatar } from "@mui/material"
 import SearchIcon from '@mui/icons-material/Search';
 import EmailIcon from '@mui/icons-material/Email';
 import ChatSection from "src/components/chatsection/ChatSection";
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import SendIcon from '@mui/icons-material/Send';
+import ContactDetailsDialog from "../dialogs/ContactDetailsDialog";
 
 
 function ChatView() {
     return (
         <>
             <div style={{ borderBottom: '1px solid rgba(0,0,0,0.2)' }} className="tw-bg-[#272727] tw-w-full tw-py-2 tw-px-3 tw-flex tw-justify-between">
-                <div className='tw-flex tw-gap-4'>
 
-                    <Avatar />
-
-                    <div className='tw-flex tw-flex-col'>
-                        <label className='tw-text-sm tw-font-medium'>Okkomala ekata</label>
-                        <label className='tw-text-xs tw-text-[#A3A3A3] tw-font-thin'>Naveen Dhananjaya, Ashan cs</label>
-                    </div>
-
-                </div>
+                <ContactDetailsDialog />
 
                 <div className="tw-ml-2 tw-flex tw-gap-2">
 
