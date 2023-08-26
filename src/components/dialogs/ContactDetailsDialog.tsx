@@ -11,6 +11,7 @@ import LinkIcon from '@mui/icons-material/Link';
 import EnhancedEncryptionOutlinedIcon from '@mui/icons-material/EnhancedEncryptionOutlined';
 import Overview from './ContactDetailsViews/Overview';
 import Participants from './ContactDetailsViews/Participants';
+import Media from './ContactDetailsViews/Media';
 
 
 
@@ -72,7 +73,7 @@ function ContactDetailsDialog() {
                             <label className='tw-text-xs tw-ml-3 tw-my-auto'>Participants</label>
                         </div>
 
-                        <div onClick={() => setCurrentTab(3)} className='tw-w-full tw-flex tw-p-2 tw-rounded-md hover:tw-bg-[#37383B]'>
+                        <div onClick={() => setCurrentTab(2)} className='tw-w-full tw-flex tw-p-2 tw-rounded-md hover:tw-bg-[#37383B]'>
                             <SubscriptionsIcon className='tw-my-auto' sx={{ fontSize: 18 }} />
                             <label className='tw-text-xs tw-ml-3 tw-my-auto'>Media</label>
                         </div>
@@ -101,6 +102,7 @@ function ContactDetailsDialog() {
                     <div className='tw-flex tw-flex-grow tw-p-3 tw-bg-[#303030] tw-overflow-y-auto'>
                         {currentTab == 0 && <Overview />}
                         {currentTab == 1 && <Participants />}
+                        {currentTab == 2 && <Media />}
                     </div>
 
                 </div>
