@@ -14,6 +14,7 @@ import Participants from './ContactDetailsViews/Participants';
 import Media from './ContactDetailsViews/Media';
 import Files from './ContactDetailsViews/Files';
 import Links from './ContactDetailsViews/Links';
+import Encryption from './ContactDetailsViews/Encryption';
 
 
 
@@ -90,7 +91,7 @@ function ContactDetailsDialog() {
                             <label className='tw-text-xs tw-ml-3 tw-my-auto'>Links</label>
                         </div>
 
-                        <div className='tw-w-full tw-flex tw-p-2 tw-rounded-md hover:tw-bg-[#37383B]'>
+                        <div onClick={() => setCurrentTab(5)} className='tw-w-full tw-flex tw-p-2 tw-rounded-md hover:tw-bg-[#37383B]'>
                             <EnhancedEncryptionOutlinedIcon className='tw-my-auto' sx={{ fontSize: 18 }} />
                             <label className='tw-text-xs tw-ml-3 tw-my-auto'>Encryption</label>
                         </div>
@@ -107,6 +108,7 @@ function ContactDetailsDialog() {
                         {currentTab == 2 && <Media />}
                         {currentTab == 3 && <Files />}
                         {currentTab == 4 && <Links />}
+                        {currentTab == 5 && <Encryption />}
                     </div>
 
                 </div>
