@@ -10,6 +10,7 @@ import ArticleIcon from '@mui/icons-material/Article';
 import LinkIcon from '@mui/icons-material/Link';
 import EnhancedEncryptionOutlinedIcon from '@mui/icons-material/EnhancedEncryptionOutlined';
 import Overview from './ContactDetailsViews/Overview';
+import Participants from './ContactDetailsViews/Participants';
 
 
 
@@ -99,6 +100,7 @@ function ContactDetailsDialog() {
 
                     <div className='tw-flex tw-flex-grow tw-p-3 tw-bg-[#303030] tw-overflow-y-auto'>
                         {currentTab == 0 && <Overview />}
+                        {currentTab == 1 && <Participants />}
                     </div>
 
                 </div>
