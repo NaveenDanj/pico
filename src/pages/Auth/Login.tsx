@@ -10,7 +10,7 @@ function Login() {
                     <h2 className="tw-text-2xl tw-font-semibold ">Pico-WEB</h2>
                 </div>
 
-                <div className="tw-bg-[#132036] tw-py-3 tw-mb-7 tw-px-5 tw-rounded-md tw-mt-5">
+                <div className="tw-bg-[#132036] tw-py-5 tw-mb-7 tw-px-5 tw-rounded-md tw-mt-5">
                     <label className="tw-text-lg tw-font-semibold">Login</label>
 
                     <div className="tw-w-full tw-flex tw-flex-col tw-gap-1 tw-mt-3">

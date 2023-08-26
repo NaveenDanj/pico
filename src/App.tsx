@@ -11,6 +11,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import AuthLayout from "./layout/AuthLayout";
 import Login from "./pages/Auth/Login";
+import Register from "./pages/Auth/Register";
 
 const darkTheme = createTheme({
   palette: {
@@ -37,6 +38,7 @@ function App() {
 
           <Route path="/auth" element={<AuthLayout />}>
             <Route index element={<Login />} />
+            <Route path="register" element={<Register />} />
           </Route>
 
 
