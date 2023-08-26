@@ -13,6 +13,7 @@ import Overview from './ContactDetailsViews/Overview';
 import Participants from './ContactDetailsViews/Participants';
 import Media from './ContactDetailsViews/Media';
 import Files from './ContactDetailsViews/Files';
+import Links from './ContactDetailsViews/Links';
 
 
 
@@ -84,7 +85,7 @@ function ContactDetailsDialog() {
                             <label className='tw-text-xs tw-ml-3 tw-my-auto'>Files</label>
                         </div>
 
-                        <div className='tw-w-full tw-flex tw-p-2 tw-rounded-md hover:tw-bg-[#37383B]'>
+                        <div onClick={() => setCurrentTab(4)} className='tw-w-full tw-flex tw-p-2 tw-rounded-md hover:tw-bg-[#37383B]'>
                             <LinkIcon className='tw-my-auto' sx={{ fontSize: 18 }} />
                             <label className='tw-text-xs tw-ml-3 tw-my-auto'>Links</label>
                         </div>
@@ -105,6 +106,7 @@ function ContactDetailsDialog() {
                         {currentTab == 1 && <Participants />}
                         {currentTab == 2 && <Media />}
                         {currentTab == 3 && <Files />}
+                        {currentTab == 4 && <Links />}
                     </div>
 
                 </div>
