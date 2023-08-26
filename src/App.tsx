@@ -9,6 +9,8 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 
 import CssBaseline from '@mui/material/CssBaseline';
+import AuthLayout from "./layout/AuthLayout";
+import Login from "./pages/Auth/Login";
 
 const darkTheme = createTheme({
   palette: {
@@ -32,6 +34,12 @@ function App() {
             {/* <Route path="contact" element={<Contact />} />
           <Route path="*" element={<NoPage />} /> */}
           </Route>
+
+          <Route path="/auth" element={<AuthLayout />}>
+            <Route index element={<Login />} />
+          </Route>
+
+
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
