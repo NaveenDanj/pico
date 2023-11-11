@@ -1,7 +1,7 @@
 import { getFirestore } from "firebase/firestore";
 import {User , signOut , getAuth , signInWithEmailAndPassword , onAuthStateChanged , createUserWithEmailAndPassword  } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { UserData } from "src/types/dto";
+import { UserAdditionalData, UserData } from "src/types/dto";
 import app from "src/config/FirebaseConfig";
 
 
@@ -54,27 +54,70 @@ export default {
         try{
             const user = await createUserWithEmailAndPassword(auth, email, password)
             
-            const data = {
+            const _data:UserData = {
                 email : user.user.email,
                 displayName : profileName,
                 photoURL : "",
                 uid : user.user.uid,
                 phoneNumber : ""
             }
+
+            const data:UserAdditionalData = {
+                uid: user.user.uid,
+                dp: "",
+                FirstName: profileName.split(" ")[0],
+                LastName: profileName.split(" ")[1],
+                email: user.user.email,
+                phoneNumer: "",
+                about: "",
+                blockedContact: [],
+                addToGroups: false,
+                readReceipt: false,
+                archivedContact: [],
+                disappearingmessages: false,
+                created : new Date()
+            }
             
-            const docRef = await setDoc( doc(db, "users", user.user.uid) , data);
+            await setDoc( doc(db, "users", user.user.uid) , data);
             
             return {
                 "success" : true,
-                "user" : docRef,
+                "user" : _data,
+                "userAdditionalData" : data,
                 "error" : ''
             }
 
         }catch(err){
+
+            const userData:UserData = {
+                email: "",
+                displayName: "",
+                photoURL: "",
+                uid: "",
+                phoneNumber: ""
+            }
+
+            const data:UserAdditionalData = {
+                uid: "",
+                dp: "",
+                FirstName: "",
+                LastName: "",
+                email: null,
+                phoneNumer: "",
+                about: "",
+                blockedContact: [],
+                addToGroups: false,
+                readReceipt: false,
+                archivedContact: [],
+                disappearingmessages: false,
+                created: null
+            }
             
             return {
                 "success" : false,
-                "error" : err
+                "error" : err,
+                'user': userData,
+                'userAdditionalData' : data
             }
         
         }
@@ -94,7 +137,8 @@ export default {
 
     getUserData : (user:User) => {
         return _getUserData(user)
-    }
+    },
+
 
 }
 function _getUserData(user:User) {

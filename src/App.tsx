@@ -9,6 +9,8 @@ import Archived from "src/pages/App/Archived";
 import Email from "src/pages/Email/Email";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import AuthService from "src/services/Auth/AuthService";
+import { useDispatch } from 'react-redux'
+import { setUser } from 'src/store/slices/UserSlice';
 
 import CssBaseline from '@mui/material/CssBaseline';
 import AuthLayout from "./layout/AuthLayout";
@@ -31,7 +33,7 @@ function App() {
 
   const [authState, setAuthState] = useState(false)
   const [loading, setLoading] = useState(true)
-  // const dispatch = useDispatch()
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const auth = getAuth(app);
@@ -41,13 +43,13 @@ function App() {
         setAuthState(true);
         const data: UserData = AuthService.getUserData(user)
         console.log(data, authState, loading)
-        // dispatch(setUser(data))
+        dispatch(setUser(data))
       } else {
         setAuthState(false);
       }
       setLoading(false);
     });
-  }, []);
+  }, [authState, loading]);
 
 
   if (loading) {
