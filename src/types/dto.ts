@@ -21,3 +21,10 @@ export interface UserAdditionalData {
     disappearingmessages: boolean,
     created: Date | null
 }
+
+export interface Contact {
+    owenerId : string,
+    userUID : string,
+    contactName : string,
+    blocked : boolean
+}

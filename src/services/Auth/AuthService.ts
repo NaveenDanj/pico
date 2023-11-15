@@ -40,14 +40,14 @@ export default {
     },
 
     checkAuthState : () => {
+        let out = null
         onAuthStateChanged(auth, (user) => {
-            console.log('user is -> ' , user)
             if (user) {
-              return user;
-            } else {
-              return null;
+              out = user;
             }
         });
+
+        return out
     },
 
     registerByEmailAndPassword : async (email:string , password:string , profileName:string) => {
