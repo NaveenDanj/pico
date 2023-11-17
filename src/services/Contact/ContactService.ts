@@ -2,7 +2,7 @@
 import { addDoc, collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore"; 
 import app from "src/config/FirebaseConfig";
-import { Contact } from "src/types/dto";
+import { ChatContact, Contact } from "src/types/dto";
 import AuthService from "../Auth/AuthService";
 
 // const auth = getAuth(app);
@@ -112,7 +112,63 @@ export default {
             message : "Contact blocked successfully"
         }
 
-    }
+    },
 
+    loadUserContact: async () => {
+
+        const user = await AuthService.checkAuthState()
+
+        if (user == null) return {
+            success: false,
+            contacts : [] as ChatContact[]
+        };
+
+        const ref = collection(db, "contacts");
+        const q = query(ref, where("ownerId", "==", user.uid ) , where('blocked' , '==' , false));
+        const res = await getDocs(q);
+
+        if (res.empty) {
+            return {
+                success: true,
+                contacts : [] as ChatContact[]
+            };
+        }
+
+        const out:ChatContact[] = []
+
+        res.forEach( async (docs) => {
+            const d = docs.data()
+            out.push({
+                ownerId: d.ownerId,
+                userUID: d.userUID,
+                contactName: d.contactName,
+                blocked: d.blocked,
+                dp: ""
+            })
+            
+        });
+        
+        for(let i = 0; i < out.length; i++){
+
+            const docRef = doc(db, "users",  out[i].userUID );
+            const userSnap = await getDoc(docRef);
+            let dp = ""
+    
+            if (userSnap.exists()){
+                dp = userSnap.data().dp
+            }
+
+            out[i].dp = dp
+
+        }
+        
+        
+        return {
+            success: true,
+            contacts : out
+        };
+
+
+    }
 
 }

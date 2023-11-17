@@ -28,3 +28,11 @@ export interface Contact {
     contactName : string,
     blocked : boolean
 }
+
+export interface ChatContact {
+    ownerId : string,
+    userUID : string,
+    contactName : string,
+    blocked : boolean
+    dp: string
+}

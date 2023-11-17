@@ -39,7 +39,7 @@ export default {
         }
     },
 
-    checkAuthState : () => {
+    checkAuthState : ():Promise<User | null> => {
         return new Promise( (resolve , reject ) => {
             onAuthStateChanged(auth, user => {
                 if (user) {

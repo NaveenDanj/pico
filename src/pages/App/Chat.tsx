@@ -4,8 +4,23 @@ import { Avatar } from '@mui/material';
 import ChatNameItem from 'src/components/chat/ChatNameItem';
 import './index.css'
 import AddContactDialog from 'src/components/dialogs/AddContactDialog';
+import { useEffect, useState } from 'react';
+import ContactService from 'src/services/Contact/ContactService';
+import { ChatContact } from 'src/types/dto';
 
 function Chat() {
+
+  const [chats, setChats] = useState<ChatContact[]>([])
+
+  useEffect(() => {
+    fetchChats();
+  }, [])
+
+  const fetchChats = async () => {
+    const _chats = await ContactService.loadUserContact();
+    setChats(_chats.contacts);
+  }
+
   return (
     <div>
 
@@ -56,20 +71,7 @@ function Chat() {
           <label className='tw-text-xs tw-text-[#A3A3A3] tw-font-thin'>1:00 PM</label>
 
         </div>
-
-        <ChatNameItem />
-        <ChatNameItem />
-        <ChatNameItem />
-        <ChatNameItem />
-        <ChatNameItem />
-        <ChatNameItem />
-        <ChatNameItem />
-        <ChatNameItem />
-        <ChatNameItem />
-        <ChatNameItem />
-
-
-
+        {chats.map((item) => (<ChatNameItem chatItem={item} />))}
       </div>
 
     </div>
