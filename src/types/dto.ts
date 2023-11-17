@@ -23,7 +23,7 @@ export interface UserAdditionalData {
 }
 
 export interface Contact {
-    owenerId : string,
+    ownerId : string,
     userUID : string,
     contactName : string,
     blocked : boolean

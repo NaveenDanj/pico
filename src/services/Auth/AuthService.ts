@@ -40,14 +40,15 @@ export default {
     },
 
     checkAuthState : () => {
-        let out = null
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-              out = user;
-            }
-        });
-
-        return out
+        return new Promise( (resolve , reject ) => {
+            onAuthStateChanged(auth, user => {
+                if (user) {
+                    resolve(user);
+                }else{
+                    reject(null)
+                }
+            });
+        })
     },
 
     registerByEmailAndPassword : async (email:string , password:string , profileName:string) => {

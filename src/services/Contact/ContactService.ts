@@ -4,16 +4,25 @@ import { getFirestore } from "firebase/firestore";
 import app from "src/config/FirebaseConfig";
 import { Contact } from "src/types/dto";
 import AuthService from "../Auth/AuthService";
-import { User } from "firebase/auth";
 
 // const auth = getAuth(app);
 const db = getFirestore(app);
 
 export default {
     
-    createContact: async (contactEmail: string, contactName: string, uid: string) => {
+    createContact: async (contactEmail: string, contactName: string) => {
 
-        // get contact user uid
+        const ownerUser = await AuthService.checkAuthState()
+
+        if(ownerUser == null) return {
+            success : false,
+            message : 'Unauthorized'
+        }
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        const uid = ownerUser.uid;
+        
+
         const userRef = collection(db, "users");
         const q1 = query(userRef, where("email", "==", contactEmail));
         const user = await getDocs(q1);
@@ -35,12 +44,18 @@ export default {
             message: 'User does not have an valid PICO account'
         }
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (uid == foundUser.uid) return {
+            success : false,
+            message : 'Cannot add yourself to the contact list'
+        }
+
         const ref = collection(db, "contacts");
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        const q = query(ref, where("ownerId", "==", uid), where('userUID', '==', foundUser.uid));
+        const q = query(ref, where("ownerId", "==", uid ), where('userUID', '==', foundUser.uid ));
         const res = await getDocs(q);
-
         if (!res.empty) {
             return {
                 success: false,
@@ -49,7 +64,7 @@ export default {
         }
 
         const data:Contact = {
-            owenerId: uid,
+            ownerId: uid,
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             userUID: foundUser.uid,
@@ -71,21 +86,31 @@ export default {
     },
 
     blockContact: async (contactId:string ) => {
-        const user: User | null= AuthService.checkAuthState()
+        
+        const user = await AuthService.checkAuthState()
 
         if (user == null) return false
 
         const docRef = doc(db, "contacts", contactId);
         const docSnap = await getDoc(docRef);
 
-        if (!docSnap.exists()) return false
-        if (docSnap.data().blcoked) return false
+        if (!docSnap.exists()) return {
+            success : false,
+            message : "Contact details not found"
+        }
+        if (docSnap.data().blcoked) return {
+            success : false,
+            message : "Contact is already blocked"
+        }
 
         await updateDoc(docRef, {
             blocked: true
         });
 
-        return true
+        return {
+            success : true,
+            message : "Contact blocked successfully"
+        }
 
     }
 
