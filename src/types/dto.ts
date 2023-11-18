@@ -36,3 +36,26 @@ export interface ChatContact {
     blocked : boolean
     dp: string
 }
+
+
+export interface Message {
+    uid: string;
+    message: string;
+    chatroomId: string;
+    attachments : string[];
+    timestamp: Date;
+    isReplied: boolean;
+    repliedTo: Message | null;
+}
+
+export interface ChatRoom {
+    uid: string;
+    user1: string;
+    user2: string;
+}
+
+export interface GlobalInbox {
+    message:Message,
+    timestamp:Date,
+    fromUser:string;
+}

@@ -21,6 +21,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { UserData } from "./types/dto";
 import Loading from "./components/global/Loading";
 import PrivateRoute from "./components/Routes/PrivateRoute";
+import ChatGlobalInboxService from "./services/Chat/ChatGlobalInboxService";
 
 const darkTheme = createTheme({
   palette: {
@@ -38,19 +39,23 @@ function App() {
   useEffect(() => {
     const auth = getAuth(app);
 
-    onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setAuthState(true);
-        const data: UserData = AuthService.getUserData(user)
-        console.log(data, authState, loading)
-        dispatch(setUser(data))
+        const data: UserData = AuthService.getUserData(user);
+        dispatch(setUser(data));
+        ChatGlobalInboxService.listenForIncomingMessages(user.uid);
       } else {
         setAuthState(false);
       }
       setLoading(false);
     });
-  }, [authState, loading]);
 
+    return () => {
+      unsubscribe();
+    };
+
+  }, [dispatch]);
 
   if (loading) {
     return <Loading />;
@@ -69,7 +74,7 @@ function App() {
             <Route path="archived" element={<PrivateRoute isAuth={authState} element={<Archived />} />} />
             <Route path="email" element={<PrivateRoute isAuth={authState} element={<Email />} />} />
             {/* <Route path="contact" element={<Contact />} />
-          <Route path="*" element={<NoPage />} /> */}
+            <Route path="*" element={<NoPage />} /> */}
           </Route>
 
           <Route path="/auth" element={<AuthLayout />}>

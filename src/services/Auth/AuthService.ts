@@ -1,4 +1,4 @@
-import { getFirestore } from "firebase/firestore";
+import { addDoc, collection, getFirestore } from "firebase/firestore";
 import {User , signOut , getAuth , signInWithEmailAndPassword , onAuthStateChanged , createUserWithEmailAndPassword  } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { UserAdditionalData, UserData } from "src/types/dto";
@@ -80,7 +80,18 @@ export default {
             }
             
             await setDoc( doc(db, "users", user.user.uid) , data);
-            
+
+            const docRef = doc(db, "global_inboxes", user.user.uid);
+            const colRef = collection(docRef, "data")
+
+            await addDoc(colRef, {
+                message: '',
+                timestamp: new Date(),
+                fromUser: "",
+                fromMessage: ""
+            });
+
+
             return {
                 "success" : true,
                 "user" : _data,
