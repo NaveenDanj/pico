@@ -4,22 +4,11 @@ import { Avatar } from '@mui/material';
 import ChatNameItem from 'src/components/chat/ChatNameItem';
 import './index.css'
 import AddContactDialog from 'src/components/dialogs/AddContactDialog';
-import { useEffect, useState } from 'react';
-import ContactService from 'src/services/Contact/ContactService';
-import { ChatContact } from 'src/types/dto';
+import { useSelector } from 'react-redux';
+import { RootState } from 'src/store/store';
 
 function Chat() {
-
-  const [chats, setChats] = useState<ChatContact[]>([])
-
-  useEffect(() => {
-    fetchChats();
-  }, [])
-
-  const fetchChats = async () => {
-    const _chats = await ContactService.loadUserContact();
-    setChats(_chats.contacts);
-  }
+  const chats = useSelector((state: RootState) => state.chatrooms.chatrooms)
 
   return (
     <div>

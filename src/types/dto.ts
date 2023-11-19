@@ -34,7 +34,7 @@ export interface ChatContact {
     userUID : string,
     contactName : string,
     blocked : boolean
-    dp: string
+    dp: string,
 }
 
 
@@ -52,10 +52,19 @@ export interface ChatRoom {
     uid: string;
     user1: string;
     user2: string;
+    lastMessage:Message | null;
+    lastTimeStamp:Date | null;
 }
 
 export interface GlobalInbox {
     message:Message,
     timestamp:Date,
     fromUser:string;
+}
+
+export interface ChatRoomDTO {
+    uid: string;
+    contats: ChatContact;
+    lastMessage:Message | null;
+    lastTimeStamp:Date | null;
 }

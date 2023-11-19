@@ -1,12 +1,20 @@
 // import { getAuth } from "firebase/auth";
-import { addDoc, collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { addDoc, and, collection, doc, getDoc, getDocs, or, query, updateDoc, where } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore"; 
 import app from "src/config/FirebaseConfig";
-import { ChatContact, Contact } from "src/types/dto";
+import { ChatContact, ChatRoom, ChatRoomDTO, Contact } from "src/types/dto";
 import AuthService from "../Auth/AuthService";
+import { User } from "firebase/auth";
 
 // const auth = getAuth(app);
 const db = getFirestore(app);
+
+
+interface loadChatroomDTO {
+    success: boolean;
+    chatRoom: ChatRoom | null;
+}
+
 
 export default {
     
@@ -74,6 +82,24 @@ export default {
 
         await addDoc( collection(db, "contacts") , data);
 
+
+        const docRef = await addDoc( collection(db, "chatrooms") , {
+            user1 : uid,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            user2 : foundUser.uid,
+            lastMessage: '',
+            lastTimeStamp: new Date()
+        });
+
+        const messagesCollectionRef = collection(docRef, 'messages');
+
+        await addDoc(messagesCollectionRef , {
+            sender: 'user1',
+            text: 'Hello, how are you?',
+            timestamp: new Date(),
+        })
+
         return {
             success : true,
             message : "New contact added successfully."
@@ -120,7 +146,7 @@ export default {
 
         if (user == null) return {
             success: false,
-            contacts : [] as ChatContact[]
+            contacts : [] as ChatRoomDTO[]
         };
 
         const ref = collection(db, "contacts");
@@ -130,27 +156,41 @@ export default {
         if (res.empty) {
             return {
                 success: true,
-                contacts : [] as ChatContact[]
+                contacts : [] as ChatRoomDTO[]
             };
         }
 
-        const out:ChatContact[] = []
+        const out:ChatRoomDTO[] = []
 
-        res.forEach( async (docs) => {
-            const d = docs.data()
-            out.push({
+        const ress = res;
+        for (let i = 0; i < ress.docs.length; i++){
+            const doc = ress.docs[i]
+            const d = doc.data()
+
+            const contacts:ChatContact = {
                 ownerId: d.ownerId,
                 userUID: d.userUID,
                 contactName: d.contactName,
                 blocked: d.blocked,
                 dp: ""
-            })
-            
-        });
+            }
+
+            const res = await loadChatroomFromContact(d.userUID)
+            if(res.success && res.chatRoom != null){
+                out.push({
+                    uid: res.chatRoom.uid,
+                    contats: contacts,
+                    lastMessage: res.chatRoom.lastMessage,
+                    lastTimeStamp: res.chatRoom.lastTimeStamp
+                })
+            }
+
+        }
+
         
         for(let i = 0; i < out.length; i++){
 
-            const docRef = doc(db, "users",  out[i].userUID );
+            const docRef = doc(db, "users",  out[i].contats.ownerId);
             const userSnap = await getDoc(docRef);
             let dp = ""
     
@@ -158,17 +198,108 @@ export default {
                 dp = userSnap.data().dp
             }
 
-            out[i].dp = dp
+            out[i].contats.dp = dp
 
         }
-        
         
         return {
             success: true,
             contacts : out
         };
 
+    },
+
+    loadChatroomFromContact: async(userId:string):Promise<loadChatroomDTO> => {
+
+        const user:User | null = await AuthService.checkAuthState()
+
+        if (!user){
+            return {
+                success : false,
+                chatRoom : null
+            }
+        }
+
+        const ref = collection(db, "chatrooms");
+        const q = query(ref, 
+                or(
+                    and( where("user1", "==", userId ) , where('user2' , '==' , user.uid) ),
+                    and( where("user2", "==", userId ) , where('user1' , '==' , user.uid) )
+                )
+            );
+
+        const res = await getDocs(q);
+
+        res.forEach((doc) => {
+            
+            const data:ChatRoom = {
+                uid: doc.id,
+                user1: doc.data().user1,
+                user2: doc.data().user2,
+                lastMessage: doc.data().lastMessage,
+                lastTimeStamp: doc.data().lastTimeStamp
+            };
+
+            console.log("data is : " , data)
+
+            return {
+                success : true,
+                chatRoom : data
+            }
+
+        });
+
+        return {
+            success : false,
+            chatRoom : null
+        }
 
     }
+
+}
+
+async function loadChatroomFromContact(userId: string):Promise<loadChatroomDTO> {
+    const user:User | null = await AuthService.checkAuthState()
+
+    if (!user){
+        return {
+            success : false,
+            chatRoom : null
+        }
+    }
+
+    const ref = collection(db, "chatrooms");
+    const q = query(ref, 
+            or(
+                and( where("user1", "==", userId ) , where('user2' , '==' , user.uid) ),
+                and( where("user2", "==", userId ) , where('user1' , '==' , user.uid) )
+            )
+        );
+    
+    
+    const res = await getDocs(q);
+
+    const doc = res.docs[0];
+
+    if (!doc){
+        return {
+            success : false,
+            chatRoom : null
+        }
+    }
+
+    const data:ChatRoom = {
+        uid: doc.id,
+        user1: doc.data().user1,
+        user2: doc.data().user2,
+        lastMessage: doc.data().lastMessage,
+        lastTimeStamp: doc.data().lastTimeStamp
+    };
+
+    return {
+        success : true,
+        chatRoom : data
+    }
+
 
 }

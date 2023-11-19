@@ -11,6 +11,8 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import AuthService from "src/services/Auth/AuthService";
 import { useDispatch } from 'react-redux'
 import { setUser } from 'src/store/slices/UserSlice';
+import { setChatrooms } from "src/store/slices/ChatroomSlice";
+
 
 import CssBaseline from '@mui/material/CssBaseline';
 import AuthLayout from "./layout/AuthLayout";
@@ -22,6 +24,7 @@ import { UserData } from "./types/dto";
 import Loading from "./components/global/Loading";
 import PrivateRoute from "./components/Routes/PrivateRoute";
 import ChatGlobalInboxService from "./services/Chat/ChatGlobalInboxService";
+import ContactService from "./services/Contact/ContactService";
 
 const darkTheme = createTheme({
   palette: {
@@ -31,7 +34,6 @@ const darkTheme = createTheme({
 
 
 function App() {
-
   const [authState, setAuthState] = useState(false)
   const [loading, setLoading] = useState(true)
   const dispatch = useDispatch()
@@ -56,6 +58,18 @@ function App() {
     };
 
   }, [dispatch]);
+
+
+  useEffect(() => {
+    fetchChats();
+  }, [])
+
+  const fetchChats = async () => {
+    const _chats = await ContactService.loadUserContact();
+    dispatch(setChatrooms(_chats.contacts))
+  }
+
+
 
   if (loading) {
     return <Loading />;
