@@ -13,8 +13,6 @@ export default {
         const docRef = doc(db, 'global_inboxes', uid);
         const colRef = collection(docRef, 'data');
 
-        console.log('done!')
-
         onSnapshot(colRef, (snapshot) => {
             snapshot.docChanges().forEach((change) => {
                 if (change.type === 'added') {
