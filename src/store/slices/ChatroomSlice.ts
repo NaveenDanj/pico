@@ -30,6 +30,7 @@ export const chatroomSlice = createSlice({
             if(action.payload.chatroomId == state.chatrooms[i].uid){
                 state.chatrooms[i].lastMessage = action.payload.lastMessage
                 state.chatrooms[i].lastTimeStamp = action.payload.lastTimeStamp
+                break
             }
         }
     }
@@ -37,5 +38,5 @@ export const chatroomSlice = createSlice({
   },
 })
 
-export const { setChatrooms } = chatroomSlice.actions
+export const { setChatrooms , updateLastMessageData } = chatroomSlice.actions
 export default chatroomSlice.reducer

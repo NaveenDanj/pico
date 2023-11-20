@@ -46,7 +46,7 @@ function App() {
         setAuthState(true);
         const data: UserData = AuthService.getUserData(user);
         dispatch(setUser(data));
-        ChatGlobalInboxService.listenForIncomingMessages(user.uid);
+        ChatGlobalInboxService.listenForIncomingMessages(user.uid, dispatch);
       } else {
         setAuthState(false);
       }
@@ -68,8 +68,6 @@ function App() {
     const _chats = await ContactService.loadUserContact();
     dispatch(setChatrooms(_chats.contacts))
   }
-
-
 
 
   if (loading) {

@@ -60,6 +60,7 @@ export interface GlobalInbox {
     message:Message,
     timestamp:Date,
     fromUser:string;
+    chatroomId:string;
 }
 
 export interface ChatRoomDTO {
