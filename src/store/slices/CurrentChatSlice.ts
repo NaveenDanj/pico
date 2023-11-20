@@ -1,19 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { ChatContact, Message } from 'src/types/dto';
+import { ChatRoomDTO, Message } from 'src/types/dto';
 
 export interface currentChat {
     messages: Message[];
-    selectedChat : ChatContact | null;
-    lastMessage : Message | null;
-    lastMessageTimeStamp: string;
+    selectedChat : ChatRoomDTO | null;
 }
 
 const initialState: currentChat = {
     messages: [],
     selectedChat: null,
-    lastMessage: null,
-    lastMessageTimeStamp: ''
 }
 
 export const currentChatSlice = createSlice({
@@ -29,20 +25,12 @@ export const currentChatSlice = createSlice({
         state.messages.push(action.payload)
     },
 
-    setSelectedChat: (state , action: PayloadAction<ChatContact>) => {
+    setSelectedChat: (state , action: PayloadAction<ChatRoomDTO>) => {
         state.selectedChat = action.payload
-    },
-
-    setLastMessage: (state , action: PayloadAction<Message>) => {
-        state.lastMessage = action.payload
-    },
-
-    setLastMessageTimeStamp: (state , action: PayloadAction<string>) => {
-        state.lastMessageTimeStamp = action.payload
     },
 
   },
 })
 
-export const { addMessage , setSelectedChat , setLastMessage , setLastMessageTimeStamp} = currentChatSlice.actions
+export const { setMessages , addMessage , setSelectedChat } = currentChatSlice.actions
 export default currentChatSlice.reducer

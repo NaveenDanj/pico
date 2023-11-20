@@ -1,4 +1,6 @@
 import { Avatar } from '@mui/material'
+import { useDispatch } from 'react-redux'
+import { setSelectedChat } from 'src/store/slices/CurrentChatSlice'
 import { ChatRoomDTO } from 'src/types/dto'
 
 interface ChatNameItemDto {
@@ -7,8 +9,23 @@ interface ChatNameItemDto {
 
 
 function ChatNameItem({ chatItem }: ChatNameItemDto) {
+
+    const dispatch = useDispatch()
+
+    const handleSelectChatroom = () => {
+        const currentChat: ChatRoomDTO = {
+            uid: chatItem.uid,
+            contats: chatItem.contats,
+            lastMessage: chatItem.lastMessage,
+            lastTimeStamp: chatItem.lastTimeStamp
+        }
+
+        dispatch(setSelectedChat(currentChat))
+    }
+
+
     return (
-        <div className='tw-w-full tw-flex tw-p-2 tw-justify-between tw-cursor-pointer'>
+        <div onClick={handleSelectChatroom} className='tw-w-full tw-flex tw-p-2 tw-justify-between tw-cursor-pointer'>
 
             <div className='tw-flex tw-gap-4 tw-w-full'>
 
