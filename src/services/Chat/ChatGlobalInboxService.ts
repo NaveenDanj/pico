@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getFirestore , onSnapshot  } from "firebase/firestore";
+import { addDoc, collection, doc, getFirestore , onSnapshot, updateDoc  } from "firebase/firestore";
 
 import app from "src/config/FirebaseConfig";
 import { GlobalInbox, Message } from "src/types/dto";
@@ -37,7 +37,6 @@ export default {
 
     sendToGlobalIndex : async (message:Message , to:string , chatroomId:string) => {
 
-
         const user:User | null = await AuthService.checkAuthState()
 
         if (!user){
@@ -55,6 +54,23 @@ export default {
         }
 
         await addDoc(colRef, data)
+
+        // send to sender's global inbox
+        const sendersGlobalIndexRef = doc(db , 'global_inboxes' , user.uid)
+        const colGlobalInbox = collection(sendersGlobalIndexRef, 'data');
+        await addDoc(colGlobalInbox, data)
+
+        // send the message to the chatroom
+        const chatroomRef = doc(db, 'chatrooms', chatroomId);
+        const msgRef = collection(chatroomRef, 'messages');
+        await addDoc(msgRef, data)
+
+        // update last message
+        await updateDoc(chatroomRef, {
+            lastMessage: message,
+            lastTimeStamp: data.timestamp
+        });
+
 
         return true
     }

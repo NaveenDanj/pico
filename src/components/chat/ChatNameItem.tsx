@@ -1,7 +1,9 @@
 import { Avatar } from '@mui/material'
+import moment from 'moment'
 import { useDispatch } from 'react-redux'
 import { setSelectedChat } from 'src/store/slices/CurrentChatSlice'
 import { ChatRoomDTO } from 'src/types/dto'
+
 
 interface ChatNameItemDto {
     chatItem: ChatRoomDTO
@@ -19,8 +21,8 @@ function ChatNameItem({ chatItem }: ChatNameItemDto) {
             lastMessage: chatItem.lastMessage,
             lastTimeStamp: chatItem.lastTimeStamp
         }
-
         dispatch(setSelectedChat(currentChat))
+        // console.log(new Date(chatItem.lastTimeStamp.seconds * 1000))
     }
 
 
@@ -34,14 +36,17 @@ function ChatNameItem({ chatItem }: ChatNameItemDto) {
                 <div className='tw-flex tw-flex-col tw-w-full'>
                     <div className='tw-flex tw-w-full tw-justify-between'>
                         <label className='tw-text-sm tw-my-auto tw-font-medium'>{chatItem.contats.contactName}</label>
-                        <label className='tw-text-[10px] tw-my-auto tw-text-[#A3A3A3] tw-font-thin'>1:00 PM</label>
+                        <label className='tw-text-[10px] tw-my-auto tw-text-[#A3A3A3] tw-font-thin'>
+                            {chatItem.lastTimeStamp && moment(new Date(chatItem.lastTimeStamp * 1000)).format('h:mm A')}
+                        </label>
 
                     </div>
-                    <label className='tw-text-xs tw-text-[#A3A3A3] tw-font-thin'>Check this out</label>
+                    <label className='tw-text-xs tw-text-[#A3A3A3] tw-font-thin'>
+                        {chatItem.lastMessage && chatItem.lastMessage.message}
+                    </label>
                 </div>
 
             </div>
-
 
         </div>
     )

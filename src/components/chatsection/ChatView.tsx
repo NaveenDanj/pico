@@ -4,9 +4,43 @@ import ChatSection from "src/components/chatsection/ChatSection";
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import SendIcon from '@mui/icons-material/Send';
 import ContactDetailsDialog from "../dialogs/ContactDetailsDialog";
+import { KeyboardEvent, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from 'src/store/store';
+import { Message } from 'src/types/dto';
+import ChatGlobalInboxService from 'src/services/Chat/ChatGlobalInboxService';
 
 
 function ChatView() {
+
+    const selectedChat = useSelector((state: RootState) => state.currentChat.selectedChat)
+    // const dispatch = useDispatch()
+
+    const [messageText, setMessageText] = useState('');
+
+    const handleKeyDown = async (event: KeyboardEvent<HTMLInputElement>) => {
+
+        if (!selectedChat) {
+            return
+        }
+
+        if (event.key === 'Enter') {
+            // console.log('Enter key pressed', messageText);
+            setMessageText('')
+            const msg = messageText
+            const messageObject: Message = {
+                message: msg,
+                chatroomId: selectedChat.uid,
+                attachments: [],
+                timestamp: new Date(),
+                isReplied: false,
+                repliedTo: null
+            }
+            const res = await ChatGlobalInboxService.sendToGlobalIndex(messageObject, selectedChat.contats.userUID, selectedChat.uid)
+            console.log(res)
+        }
+    }
+
     return (
         <>
             <div style={{ borderBottom: '1px solid rgba(0,0,0,0.2)' }} className="tw-bg-[#272727] tw-w-full tw-py-2 tw-px-3 tw-flex tw-justify-between">
@@ -43,7 +77,7 @@ function ChatView() {
 
 
                 <div className="tw-w-full">
-                    <input type="text" placeholder="Type a message" className=' tw-w-full tw-ml-2 tw-p-1 tw-text-xs' />
+                    <input value={messageText} onChange={(e) => setMessageText(e.target.value)} onKeyDown={handleKeyDown} type="text" placeholder="Type a message" className=' tw-w-full tw-ml-2 tw-p-1 tw-text-xs' />
                 </div>
 
                 <div className="tw-w-[45px] tw-p-1 tw-flex tw-justify-center tw-ml-2 tw-rounded-md  hover:tw-bg-[#333333]">

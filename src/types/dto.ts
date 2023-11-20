@@ -39,7 +39,7 @@ export interface ChatContact {
 
 
 export interface Message {
-    uid: string;
+    uid?:string;
     message: string;
     chatroomId: string;
     attachments : string[];
