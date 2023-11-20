@@ -1,5 +1,4 @@
 import { addDoc, collection, doc, getFirestore , onSnapshot, updateDoc  } from "firebase/firestore";
-
 import app from "src/config/FirebaseConfig";
 import { GlobalInbox, Message } from "src/types/dto";
 import AuthService from "../Auth/AuthService";
@@ -8,6 +7,7 @@ const db = getFirestore(app);
 import { Dispatch } from "react";
 import { UpdateLastMessageDTO, updateLastMessageData } from "src/store/slices/ChatroomSlice";
 import { AnyAction } from "@reduxjs/toolkit";
+import { addMessage } from "src/store/slices/CurrentChatSlice";
 
 
 export default {
@@ -27,8 +27,10 @@ export default {
                         lastMessage: data.message,
                         lastTimeStamp: data.timestamp
                     }
-                    
+                    data.message.sender = data.fromUser
                     dispatch(updateLastMessageData(d))
+                    dispatch(addMessage(data.message))
+                    
                 }
             });
         });

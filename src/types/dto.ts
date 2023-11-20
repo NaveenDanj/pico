@@ -46,6 +46,7 @@ export interface Message {
     timestamp: Date;
     isReplied: boolean;
     repliedTo: Message | null;
+    sender?:string;
 }
 
 export interface ChatRoom {

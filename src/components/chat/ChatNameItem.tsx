@@ -1,9 +1,9 @@
 import { Avatar } from '@mui/material'
 import moment from 'moment'
 import { useDispatch } from 'react-redux'
-import { setSelectedChat } from 'src/store/slices/CurrentChatSlice'
+import { setSelectedChat, setMessages } from 'src/store/slices/CurrentChatSlice'
 import { ChatRoomDTO } from 'src/types/dto'
-
+import ChatMainService from 'src/services/Chat/ChatMainService'
 
 interface ChatNameItemDto {
     chatItem: ChatRoomDTO
@@ -14,7 +14,7 @@ function ChatNameItem({ chatItem }: ChatNameItemDto) {
 
     const dispatch = useDispatch()
 
-    const handleSelectChatroom = () => {
+    const handleSelectChatroom = async () => {
         const currentChat: ChatRoomDTO = {
             uid: chatItem.uid,
             contats: chatItem.contats,
@@ -23,6 +23,19 @@ function ChatNameItem({ chatItem }: ChatNameItemDto) {
         }
         dispatch(setSelectedChat(currentChat))
         // console.log(new Date(chatItem.lastTimeStamp.seconds * 1000))
+        const messages = await ChatMainService.loadChatroomChats(chatItem.uid)
+        console.log(messages)
+        dispatch(setMessages(messages))
+    }
+
+    const formatDate = (date: Date | null) => {
+        if (!date) {
+            return ""
+        }
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        return moment(new Date(date * 1000)).format('h:mm A')
+
     }
 
 
@@ -37,7 +50,7 @@ function ChatNameItem({ chatItem }: ChatNameItemDto) {
                     <div className='tw-flex tw-w-full tw-justify-between'>
                         <label className='tw-text-sm tw-my-auto tw-font-medium'>{chatItem.contats.contactName}</label>
                         <label className='tw-text-[10px] tw-my-auto tw-text-[#A3A3A3] tw-font-thin'>
-                            {chatItem.lastTimeStamp && moment(new Date(chatItem.lastTimeStamp * 1000)).format('h:mm A')}
+                            {chatItem.lastTimeStamp && formatDate(chatItem.lastTimeStamp)}
                         </label>
 
                     </div>

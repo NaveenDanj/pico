@@ -1,6 +1,13 @@
 import { Avatar } from "@mui/material"
+import { Message } from "src/types/dto"
 
-function ChatItemOther() {
+
+interface ChatItemOtherDTO {
+    message: Message
+}
+
+
+function ChatItemOther({ message }: ChatItemOtherDTO) {
     return (
         <div className="tw-w-full tw-flex tw-gap-3">
 
@@ -11,7 +18,7 @@ function ChatItemOther() {
                 <label className="tw-text-[#06CF9C] tw-text-xs">Naveen Dhananjaya</label>
 
                 <p className="tw-text-xs tw-mt-1">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima, accusantium numquam. Quae ipsam, dolorum quo impedit distinctio deserunt non. Quas ex nam quia eveniet aut quibusdam iure ducimus voluptas voluptate.
+                    {message.message && message.message}
                 </p>
 
                 <div className="tw-flex tw-justify-end">

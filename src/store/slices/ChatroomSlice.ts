@@ -33,7 +33,7 @@ export const chatroomSlice = createSlice({
                 break
             }
         }
-    }
+    },
 
   },
 })

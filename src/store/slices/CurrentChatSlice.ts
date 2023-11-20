@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { ChatRoomDTO, Message } from 'src/types/dto';
+import { ChatRoomDTO, GlobalInbox, Message } from 'src/types/dto';
 
 export interface currentChat {
     messages: Message[];
@@ -17,12 +17,29 @@ export const currentChatSlice = createSlice({
   initialState,
   reducers: {
 
-    setMessages: (state , action: PayloadAction<Message[]>) => {
-        state.messages = action.payload
+    setMessages: (state , action: PayloadAction<GlobalInbox[]>) => {
+        state.messages = []
+        for(let i = 0; i < action.payload.length; i++){
+            const data = action.payload[i];
+            const msg:Message = {
+                message: data.message.message,
+                chatroomId: data.chatroomId,
+                attachments: data.message.attachments,
+                timestamp:  data.message.timestamp,
+                isReplied: data.message.isReplied,
+                repliedTo: data.message.repliedTo,
+                sender: data.fromUser
+            }
+            state.messages.push(msg)
+        }
     },
 
     addMessage: (state , action: PayloadAction<Message>) => {
-        state.messages.push(action.payload)
+        if(state.selectedChat){
+            if(state.selectedChat.uid == action.payload.chatroomId){
+                state.messages.push(action.payload)
+            }
+        }
     },
 
     setSelectedChat: (state , action: PayloadAction<ChatRoomDTO>) => {

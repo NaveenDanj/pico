@@ -82,23 +82,22 @@ export default {
 
         await addDoc( collection(db, "contacts") , data);
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        const resCheck = await loadChatroomFromContact(foundUser.uid)
+        
+        if(!resCheck.success){
+            
+            await addDoc( collection(db, "chatrooms") , {
+                user1 : uid,
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                user2 : foundUser.uid,
+                lastMessage: '',
+                lastTimeStamp: new Date()
+            });
 
-        const docRef = await addDoc( collection(db, "chatrooms") , {
-            user1 : uid,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            user2 : foundUser.uid,
-            lastMessage: '',
-            lastTimeStamp: new Date()
-        });
-
-        const messagesCollectionRef = collection(docRef, 'messages');
-
-        await addDoc(messagesCollectionRef , {
-            sender: 'user1',
-            text: 'Hello, how are you?',
-            timestamp: new Date(),
-        })
+        }
 
         return {
             success : true,
