@@ -15,11 +15,14 @@ import Media from './ContactDetailsViews/Media';
 import Files from './ContactDetailsViews/Files';
 import Links from './ContactDetailsViews/Links';
 import Encryption from './ContactDetailsViews/Encryption';
+import { ChatRoomDTO } from 'src/types/dto';
 
 
+interface ContactDetailsDTO {
+    selectedChat: ChatRoomDTO | null
+}
 
-
-function ContactDetailsDialog() {
+function ContactDetailsDialog({ selectedChat }: ContactDetailsDTO) {
 
     const [open, setOpen] = React.useState(false);
     const [currentTab, setCurrentTab] = React.useState(0);
@@ -37,10 +40,10 @@ function ContactDetailsDialog() {
 
             <div onClick={handleClickOpen} className='tw-flex tw-gap-4'>
 
-                <Avatar />
+                <Avatar src={selectedChat?.contats.dp} />
 
                 <div className='tw-flex tw-flex-col'>
-                    <label className='tw-text-sm tw-font-medium'>Okkomala ekata</label>
+                    <label className='tw-text-sm tw-font-medium'>{selectedChat?.contats.contactName}</label>
                     <label className='tw-text-xs tw-text-[#A3A3A3] tw-font-thin'>Naveen Dhananjaya, Ashan cs</label>
                 </div>
 
