@@ -1,4 +1,4 @@
-import { addDoc, collection, getFirestore } from "firebase/firestore";
+import { addDoc, collection, getDoc, getFirestore } from "firebase/firestore";
 import {User , signOut , getAuth , signInWithEmailAndPassword , onAuthStateChanged , createUserWithEmailAndPassword  } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { UserAdditionalData, UserData } from "src/types/dto";
@@ -150,6 +150,34 @@ export default {
     getUserData : (user:User) => {
         return _getUserData(user)
     },
+
+    getUserAdditionalData: async (user:User):Promise<UserAdditionalData | null> => {
+        const ref = doc(db , "users" , user.uid)
+        const d = await getDoc(ref)
+
+        if(!d.exists()){
+            return null
+        }
+        
+        const data:UserAdditionalData = {
+            uid: user.uid,
+            dp: d.data().dp,
+            FirstName: d.data().FirstName,
+            LastName: d.data().LastName,
+            email: d.data().email,
+            phoneNumer: d.data().phoneNumer,
+            about:  d.data().about,
+            blockedContact: d.data().blockedContact,
+            addToGroups: d.data().addToGroups,
+            readReceipt: d.data().readReceipt,
+            archivedContact: d.data().archivedContact,
+            disappearingmessages: d.data().disappearingmessages,
+            created:  d.data().created
+        }
+
+        return data
+
+    }
 
 
 }

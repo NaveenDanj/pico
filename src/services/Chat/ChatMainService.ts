@@ -1,11 +1,7 @@
 import { collection, doc, getDocs, getFirestore, limit, orderBy, query } from "firebase/firestore";
 import { GlobalInbox } from "src/types/dto";
-
-
 import app from "src/config/FirebaseConfig";
 const db = getFirestore(app);
-
-
 
 export default {
 
@@ -29,7 +25,6 @@ export default {
                 fromUser: m.data().fromUser,
                 chatroomId: m.data().chatroomId
             } 
-
 
             out.push(data)
         }

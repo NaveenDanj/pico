@@ -37,7 +37,6 @@ export interface ChatContact {
     dp: string,
 }
 
-
 export interface Message {
     uid?:string;
     message: string;

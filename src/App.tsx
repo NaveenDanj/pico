@@ -10,7 +10,7 @@ import Email from "src/pages/Email/Email";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import AuthService from "src/services/Auth/AuthService";
 import { useDispatch } from 'react-redux'
-import { setUser } from 'src/store/slices/UserSlice';
+import { setUser, setUserAdditionalData } from 'src/store/slices/UserSlice';
 import { setChatrooms } from "src/store/slices/ChatroomSlice";
 
 
@@ -43,12 +43,19 @@ function App() {
   useEffect(() => {
     const auth = getAuth(app);
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setAuthState(true);
         const data: UserData = AuthService.getUserData(user);
         dispatch(setUser(data));
         ChatGlobalInboxService.listenForIncomingMessages(user.uid, dispatch);
+
+        const additionalData = await AuthService.getUserAdditionalData(user)
+
+        if (additionalData) {
+          dispatch(setUserAdditionalData(additionalData))
+        }
+
       } else {
         setAuthState(false);
       }
@@ -68,6 +75,7 @@ function App() {
 
   const fetchChats = async () => {
     const _chats = await ContactService.loadUserContact();
+
     dispatch(setChatrooms(_chats.contacts))
   }
 
