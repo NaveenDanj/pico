@@ -12,7 +12,8 @@ import General from './SettingsViews/General';
 import Profile from './SettingsViews/Profile';
 import Account from './SettingsViews/Account';
 import Chat from './SettingsViews/Chat';
-
+import EmailIcon from '@mui/icons-material/Email';
+import Emails from './SettingsViews/Emails';
 
 export default function SettingsDialog() {
     const [open, setOpen] = React.useState(false);
@@ -83,6 +84,12 @@ export default function SettingsDialog() {
                             <label className='tw-text-xs tw-ml-3 tw-my-auto'>Storage</label>
                         </div>
 
+
+                        <div onClick={() => setCurrentTab(4)} className='tw-w-full tw-flex tw-p-2 tw-rounded-md hover:tw-bg-[#37383B]'>
+                            <EmailIcon className='tw-my-auto' sx={{ fontSize: 18 }} />
+                            <label className='tw-text-xs tw-ml-3 tw-my-auto'>Email</label>
+                        </div>
+
                         <div className='tw-flex tw-flex-grow'>
 
                         </div>
@@ -99,6 +106,7 @@ export default function SettingsDialog() {
                         {currentTab == 1 && <Account />}
                         {currentTab == 2 && <Profile />}
                         {currentTab == 3 && <Chat />}
+                        {currentTab == 4 && <Emails />}
                     </div>
 
                 </div>
