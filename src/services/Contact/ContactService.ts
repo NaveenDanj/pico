@@ -163,15 +163,17 @@ export default {
 
         const ress = res;
         for (let i = 0; i < ress.docs.length; i++){
-            const doc = ress.docs[i]
-            const d = doc.data()
+            const dd = ress.docs[i]
+            const d = dd.data()
+
+            console.log("d is => " , d.dp)
 
             const contacts:ChatContact = {
                 ownerId: d.ownerId,
                 userUID: d.userUID,
                 contactName: d.contactName,
                 blocked: d.blocked,
-                dp: ""
+                dp: d.dp
             }
 
             const res = await loadChatroomFromContact(d.userUID)
@@ -189,7 +191,7 @@ export default {
         
         for(let i = 0; i < out.length; i++){
 
-            const docRef = doc(db, "users",  out[i].contats.ownerId);
+            const docRef = doc(db, "users",  out[i].contats.userUID);
             const userSnap = await getDoc(docRef);
             let dp = ""
     

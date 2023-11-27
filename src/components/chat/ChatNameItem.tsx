@@ -24,8 +24,8 @@ function ChatNameItem({ chatItem }: ChatNameItemDto) {
         dispatch(setSelectedChat(currentChat))
         // console.log(new Date(chatItem.lastTimeStamp.seconds * 1000))
         const messages = await ChatMainService.loadChatroomChats(chatItem.uid)
-        console.log(messages)
         dispatch(setMessages(messages))
+        console.log(chatItem)
     }
 
     const formatDate = (date: Date | null) => {

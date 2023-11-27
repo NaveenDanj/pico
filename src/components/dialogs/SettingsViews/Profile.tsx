@@ -2,8 +2,13 @@ import { Avatar } from "@mui/material"
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import EditProfileService from "src/services/Profile/EditProfileService";
 import React, { ChangeEvent } from "react";
+import { RootState } from "src/store/store";
+import { useSelector } from 'react-redux';
+
 
 function Profile() {
+
+    const user = useSelector((state: RootState) => state.user.additionalData)
 
     const fileInputRef = React.createRef<HTMLInputElement>();
 
@@ -19,11 +24,11 @@ function Profile() {
     const handleUpload = async (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0] || null;
 
-        if (!file) {
+        if (!file || !user) {
             return
         }
 
-        const url = await EditProfileService.updateDisplayPicture(file)
+        const url = await EditProfileService.updateDisplayPicture(file , user.uid)
         console.log("uploaded: ", url)
 
     }
@@ -32,7 +37,7 @@ function Profile() {
         <div className='tw-w-full'>
 
             <div>
-                <Avatar className="tw-mt-3" sx={{ width: 100, height: 100 }} src="https://avatars.githubusercontent.com/u/48654030?v=4" />
+                <Avatar className="tw-mt-3" sx={{ width: 100, height: 100 }} src={user ? user.dp : ''} />
                 <div onClick={openFileDialog} className=" tw-relative tw-top-[-18px] tw-left-[80px] tw-w-[29px] tw-h-[29px] tw-flex tw-justify-center tw-items-center tw-rounded-md tw-my-auto hover:tw-bg-[#4B4B4B]">
                     <ModeEditIcon sx={{ width: 14 }} />
                 </div>
@@ -63,9 +68,6 @@ function Profile() {
 
                 <div className="tw-flex tw-justify-between">
                     <label className="tw-text-xs tw-my-auto">naveenhettiwaththa@gmail.com</label>
-                    {/* <div className=" tw-w-[29px] tw-h-[29px] tw-flex tw-justify-center tw-items-center tw-rounded-md tw-my-auto hover:tw-bg-[#4B4B4B]">
-                        <ModeEditIcon sx={{ width: 14 }} />
-                    </div> */}
                 </div>
             </div>
 

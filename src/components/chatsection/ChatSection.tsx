@@ -7,6 +7,7 @@ import { useEffect, useRef } from "react"
 
 function ChatSection() {
     const chats = useSelector((state: RootState) => state.currentChat.messages)
+    const selectedChatUser = useSelector((state: RootState) => state.currentChat.selectedChat)
     const user = useSelector((state: RootState) => state.user)
 
     const ref = useRef<HTMLDivElement>(null);
@@ -24,18 +25,8 @@ function ChatSection() {
 
             {chats.map((item: Message, index: number) => (
 
-                item.sender != user.userData?.uid ? <ChatItemOther key={index} message={item} /> : <ChatItemUser key={index} message={item} />
+                item.sender != user.userData?.uid ? <ChatItemOther key={index} message={item} userContact={selectedChatUser} /> : <ChatItemUser key={index} message={item} />
             ))}
-
-            {/* <ChatItemOther />
-            <ChatItemOther />
-            <ChatItemOther />
-            <ChatItemOther />
-            <ChatItemUser />
-            <ChatItemOther />
-            <ChatItemOther />
-            <ChatItemUser />
-            <ChatItemUser /> */}
 
         </div>
     )
