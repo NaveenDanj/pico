@@ -69,3 +69,11 @@ export interface ChatRoomDTO {
     lastMessage:Message | null;
     lastTimeStamp:Date | null;
 }
+
+export interface EmailSettingsDTO {
+    email:string,
+    host:string,
+    password:string,
+    port:number,
+    tls:boolean
+}

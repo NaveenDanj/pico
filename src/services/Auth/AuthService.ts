@@ -10,6 +10,11 @@ const db = getFirestore(app);
 
 export default {
 
+    getCurrentUserToken: async (): Promise<string | null> => {
+        if(!auth.currentUser) return null
+        return auth.currentUser.getIdToken()
+    },
+
     login : async (email:string , password:string) => {
         try{
             const userCredential = await signInWithEmailAndPassword(auth, email, password)

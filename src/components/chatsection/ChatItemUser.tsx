@@ -8,7 +8,7 @@ function ChatItemUser({ message }: ChatItemUserDTO) {
     return (
         <div className="tw-w-full tw-flex tw-gap-3 tw-justify-end">
 
-            <div className="tw-bg-[#035D4D] tw-flex tw-flex-col tw-rounded-sm tw-py-1 tw-px-2 tw-my-auto tw-min-w-[250px] tw-max-w-[400px]">
+            <div className="tw-bg-[#035D4D] tw-flex tw-flex-col tw-rounded-sm tw-py-1 tw-px-2 tw-my-auto tw-min-w-[250px] tw-max-w-[650px]">
 
                 <p className="tw-text-xs tw-mt-1">
                     {message.message && message.message}

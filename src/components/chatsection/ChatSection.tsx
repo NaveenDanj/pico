@@ -21,10 +21,10 @@ function ChatSection() {
 
     return (
 
-        <div ref={ref} style={{ height: 'calc(100vh - 115px)' }} className="tw-w-full tw-h-full tw-py-3 tw-px-5 tw-flex tw-flex-col tw-gap-5 tw-overflow-y-auto">
+        <div ref={ref} style={{ height: 'calc(100vh - 115px)' }} className="tw-w-full tw-h-full tw-py-3 tw-px-5 tw-flex tw-flex-col tw-gap-5 tw-overflow-y-auto ">
 
             {chats.map((item: Message, index: number) => (
-
+                
                 item.sender != user.userData?.uid ? <ChatItemOther key={index} message={item} userContact={selectedChatUser} /> : <ChatItemUser key={index} message={item} />
             ))}
 

@@ -38,6 +38,14 @@ function ChatNameItem({ chatItem }: ChatNameItemDto) {
 
     }
 
+    const trimAndEllipsis = (inputString:string, maxLength:number) => {
+        if (inputString.length > maxLength) {
+          return inputString.substring(0, maxLength - 3) + "...";
+        } else {
+          return inputString;
+        }
+    }
+
 
     return (
         <div onClick={handleSelectChatroom} className='tw-w-full tw-flex tw-p-2 tw-justify-between tw-cursor-pointer'>
@@ -55,7 +63,7 @@ function ChatNameItem({ chatItem }: ChatNameItemDto) {
 
                     </div>
                     <label className='tw-text-xs tw-text-[#A3A3A3] tw-font-thin'>
-                        {chatItem.lastMessage && chatItem.lastMessage.message}
+                        {chatItem.lastMessage && trimAndEllipsis(chatItem.lastMessage.message , 50)}
                     </label>
                 </div>
 

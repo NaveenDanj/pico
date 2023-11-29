@@ -11,6 +11,8 @@
       "src/*": ["./src/*"],
     },
 
+    "types": ["node", "@types/imap"],
+
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
