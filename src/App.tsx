@@ -25,6 +25,7 @@ import Loading from "./components/global/Loading";
 import PrivateRoute from "./components/Routes/PrivateRoute";
 import ChatGlobalInboxService from "./services/Chat/ChatGlobalInboxService";
 import ContactService from "./services/Contact/ContactService";
+import Call from "./pages/App/Call";
 
 const darkTheme = createTheme({
   palette: {
@@ -96,9 +97,10 @@ function App() {
             <Route path="starred" element={<PrivateRoute isAuth={authState} element={<StarredMessages />} />} />
             <Route path="archived" element={<PrivateRoute isAuth={authState} element={<Archived />} />} />
             <Route path="email" element={<PrivateRoute isAuth={authState} element={<Email />} />} />
+            <Route path="call" element={<PrivateRoute isAuth={authState} element={<Call />} />} />
             {/* <Route path="contact" element={<Contact />} />
             <Route path="*" element={<NoPage />} /> */}
-          </Route>
+          </Route>  
 
           <Route path="/auth" element={<AuthLayout />}>
             <Route index element={<Login />} />

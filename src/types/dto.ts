@@ -77,3 +77,16 @@ export interface EmailSettingsDTO {
     port:number,
     tls:boolean
 }
+
+export interface SignalData {
+    type: string;
+    sdp?: string;
+    candidate?: string;
+}
+
+export interface SignalDataDTO {
+    signalData: SignalData,
+    fromUserId: string,
+    toUserId: string 
+}
+

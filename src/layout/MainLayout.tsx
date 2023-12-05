@@ -17,8 +17,6 @@ function MainLayout() {
 
             <div className="tw-flex tw-flex-col tw-flex-grow">
                 <ChatView />
-                {/* <StoryView /> */}
-                {/* <EmailView /> */}
             </div>
 
         </div>

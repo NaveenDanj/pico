@@ -1,12 +1,10 @@
 import ChatIcon from '@mui/icons-material/Chat';
 import PausePresentationIcon from '@mui/icons-material/PausePresentation';
-import EmailIcon from '@mui/icons-material/Email';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import ArchiveIcon from '@mui/icons-material/Archive';
-// import SettingsIcon from '@mui/icons-material/Settings';
 import SettingsDialog from 'src/components/dialogs/SettingsDialog';
 import { useNavigate } from "react-router-dom";
-
+import CallOutlinedIcon from '@mui/icons-material/CallOutlined';
 
 function Sidebar() {
 
@@ -29,8 +27,8 @@ function Sidebar() {
                     <PausePresentationIcon sx={{ width: 16 }} />
                 </div>
 
-                <div onClick={() => navigateRoute('/email')} className="tw-w-full tw-p-1 tw-flex tw-justify-center tw-rounded-md hover:tw-bg-[#282828]">
-                    <EmailIcon sx={{ width: 16 }} />
+                <div onClick={() => navigateRoute('/call')} className="tw-w-full tw-p-1 tw-flex tw-justify-center tw-rounded-md hover:tw-bg-[#282828]">
+                    <CallOutlinedIcon sx={{ width: 16 }} />
                 </div>
 
             </div>
@@ -49,15 +47,9 @@ function Sidebar() {
                     <ArchiveIcon sx={{ width: 16 }} />
                 </div>
 
-                {/* <div className="tw-w-full tw-p-1 tw-flex tw-justify-center tw-rounded-md hover:tw-bg-[#282828]">
-                    <SettingsIcon sx={{ width: 16 }} />
-                </div> */}
-
                 <SettingsDialog />
 
             </div>
-
-
 
         </div>
     )
