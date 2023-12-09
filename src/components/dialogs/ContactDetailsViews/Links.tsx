@@ -3,7 +3,7 @@ import LinkItem from "./LinkItem"
 function Links() {
     return (
         <div className='tw-w-full tw-pt-2'>
-            <label className='tw-text-lg tw-font-thin tw-my-auto'>Files</label>
+            <label className='tw-text-lg tw-font-thin tw-my-auto'>Links</label>
 
             <div className='tw-gap-1 tw-flex tw-flex-col tw-mt-5 tw-w-full '>
 

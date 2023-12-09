@@ -21,7 +21,7 @@ import Register from "./pages/Auth/Register";
 import { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { UserData } from "./types/dto";
-import Loading from "./components/global/Loading";
+import Loading from "src/components/globals/Loading";
 import PrivateRoute from "./components/Routes/PrivateRoute";
 import ChatGlobalInboxService from "./services/Chat/ChatGlobalInboxService";
 import ContactService from "./services/Contact/ContactService";
@@ -71,14 +71,15 @@ function App() {
 
 
   useEffect(() => {
+    const fetchChats = async () => {
+      const _chats = await ContactService.loadUserContact();
+  
+      dispatch(setChatrooms(_chats.contacts))
+    }
+
     fetchChats();
-  }, [])
+  }, [dispatch])
 
-  const fetchChats = async () => {
-    const _chats = await ContactService.loadUserContact();
-
-    dispatch(setChatrooms(_chats.contacts))
-  }
 
 
   if (loading) {

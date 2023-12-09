@@ -7,7 +7,7 @@ import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined';
 import { useState } from 'react';
 import AuthService from 'src/services/Auth/AuthService';
 import { Alert } from '@mui/material';
-import Loading from 'src/components/global/Loading';
+import Loading from 'src/components/globals/Loading';
 import { setUser } from "src/store/slices/UserSlice";
 import { UserData } from "src/types/dto";
 
@@ -25,6 +25,7 @@ function Login() {
         setError('')
         setLoading(true)
         const res = await AuthService.login(email, password)
+        console.log(res)
         setLoading(false)
 
         if (res.success) {
@@ -33,10 +34,11 @@ function Login() {
             const data: UserData = AuthService.getUserData(res.user)
             dispatch(setUser(data))
             navigate('/');
+            window.location.reload();
         } else {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            if (res.error.code == 'auth/invalid-login-credentials') {
+            if (res.error.code == 'auth/invalid-credential') {
                 setError('Username or password is incorrect')
             }
 
@@ -97,7 +99,7 @@ function Login() {
                 </form>
 
                 <center>
-                    <label className="tw-text-sm tw-text-[#9499A3] tw-font-semibold">Don't have an account? Register</label>
+                    <label className="tw-text-sm tw-text-[#9499A3] tw-font-semibold">Don't have an account? <span onClick={() => navigate('/auth/register')} className="hover:tw-underline hover:tw-cursor-pointer">Register</span> </label>
                 </center>
 
             </div>

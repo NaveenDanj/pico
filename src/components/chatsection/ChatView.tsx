@@ -3,12 +3,13 @@ import EmailIcon from '@mui/icons-material/Email';
 import ChatSection from "src/components/chatsection/ChatSection";
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import SendIcon from '@mui/icons-material/Send';
-import ContactDetailsDialog from "../dialogs/ContactDetailsDialog";
+// import ContactDetailsDialog from "../dialogs/ContactDetailsDialog";
 import { KeyboardEvent, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from 'src/store/store';
 import { Message } from 'src/types/dto';
 import ChatGlobalInboxService from 'src/services/Chat/ChatGlobalInboxService';
+import ContactDetailsSingleDialog from '../dialogs/ContactDetailsDialogSingle';
 
 
 function ChatView() {
@@ -47,7 +48,9 @@ function ChatView() {
 
                 <div style={{ borderBottom: '1px solid rgba(0,0,0,0.2)' }} className="tw-bg-[#272727] tw-w-full tw-py-2 tw-px-3 tw-flex tw-justify-between">
 
-                    <ContactDetailsDialog selectedChat={selectedChat} />
+                    {/* <ContactDetailsDialog selectedChat={selectedChat} /> */}
+
+                    <ContactDetailsSingleDialog selectedChat={selectedChat} />
 
                     <div className="tw-ml-2 tw-flex tw-gap-2">
 

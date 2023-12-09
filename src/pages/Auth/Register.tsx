@@ -3,7 +3,7 @@ import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined';
 import { useState } from 'react';
 import AuthService from 'src/services/Auth/AuthService';
 import { Alert } from '@mui/material';
-import Loading from 'src/components/global/Loading';
+import Loading from 'src/components/globals/Loading';
 import { useDispatch } from 'react-redux';
 import { setUser, setUserAdditionalData } from "src/store/slices/UserSlice";
 import { useNavigate } from 'react-router-dom';
@@ -120,26 +120,10 @@ function Register() {
 
                     </div>
 
-                    {/* <div className="tw-mt-3">
-                        <center><label className="tw-text-xs tw-font-bold">OR USE WITH</label></center>
-
-                        <div className="tw-flex tw-justify-around tw-mt-3">
-                            <button className="tw-bg-[#203047] tw-w-[150px] tw-text-[#94a3b8]">
-                                <GoogleIcon sx={{ fontSize: 20 }} />
-                                <label className='tw-text-sm tw-font-bold tw-ml-3'>Google</label>
-                            </button>
-                            <button className="tw-bg-[#203047] tw-w-[150px] tw-text-[#94a3b8]">
-                                <FacebookOutlinedIcon sx={{ fontSize: 20 }} />
-                                <label className='tw-text-sm tw-font-bold tw-ml-3'>Facebook</label>
-                            </button>
-                        </div>
-
-                    </div> */}
-
                 </form>
 
                 <center>
-                    <label className="tw-text-sm tw-text-[#9499A3] tw-font-semibold">Don't have an account? Register</label>
+                    <label className="tw-text-sm tw-text-[#9499A3] tw-font-semibold">Already have an account? <span onClick={() => navigate('/auth')} className="hover:tw-underline hover:tw-cursor-pointer">Login</span></label>
                 </center>
 
             </div>

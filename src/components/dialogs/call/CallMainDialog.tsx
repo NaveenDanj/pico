@@ -11,8 +11,8 @@ import MicIcon from '@mui/icons-material/Mic';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import CallEndIcon from '@mui/icons-material/CallEnd';
-import { useState } from 'react';
-import SimplePeer from 'simple-peer';
+import { useEffect, useState } from 'react';
+// import SimplePeer from 'simple-peer';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -26,7 +26,6 @@ const Transition = React.forwardRef(function Transition(
 export default function CallMainDialog() {
     const [open, setOpen] = useState(false);
 
-
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -34,6 +33,12 @@ export default function CallMainDialog() {
     const handleClose = () => {
         setOpen(false);
     };
+
+
+    useEffect(() => {
+        // const peer = new SimplePeer({ initiator: true });
+    } ,[])
+
 
     return (
         <>

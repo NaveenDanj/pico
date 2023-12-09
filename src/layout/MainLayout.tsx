@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom"
-import Sidebar from "src/components/global/Sidebar"
+import Sidebar from "src/components/globals/Sidebar"
 import ChatView from "src/components/chatsection/ChatView";
 // import EmailView from "src/components/email/EmailView";
 // import StoryView from "src/components/story/StoryView";
