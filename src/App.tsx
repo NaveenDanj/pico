@@ -1,31 +1,32 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import app from "src/config/FirebaseConfig";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import app from 'src/config/FirebaseConfig';
 
-import MainLayout from "src/layout/MainLayout";
-import Chat from "src/pages/App/Chat";
-import Story from "src/pages/App/Story";
-import StarredMessages from "src/pages/App/StarredMessages";
-import Archived from "src/pages/App/Archived";
-import Email from "src/pages/Email/Email";
+import MainLayout from 'src/layout/MainLayout';
+import Chat from 'src/pages/App/Chat';
+import Story from 'src/pages/App/Story';
+import StarredMessages from 'src/pages/App/StarredMessages';
+import Archived from 'src/pages/App/Archived';
+import Email from 'src/pages/Email/Email';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import AuthService from "src/services/Auth/AuthService";
-import { useDispatch } from 'react-redux'
+import AuthService from 'src/services/Auth/AuthService';
+import { useDispatch } from 'react-redux';
 import { setUser, setUserAdditionalData } from 'src/store/slices/UserSlice';
-import { setChatrooms } from "src/store/slices/ChatroomSlice";
+import { setChatrooms } from 'src/store/slices/ChatroomSlice';
 
 
 import CssBaseline from '@mui/material/CssBaseline';
-import AuthLayout from "./layout/AuthLayout";
-import Login from "./pages/Auth/Login";
-import Register from "./pages/Auth/Register";
-import { useEffect, useState } from "react";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { UserData } from "./types/dto";
-import Loading from "src/components/globals/Loading";
-import PrivateRoute from "./components/Routes/PrivateRoute";
-import ChatGlobalInboxService from "./services/Chat/ChatGlobalInboxService";
-import ContactService from "./services/Contact/ContactService";
-import Call from "./pages/App/Call";
+import AuthLayout from './layout/AuthLayout';
+import Login from './pages/Auth/Login';
+import Register from './pages/Auth/Register';
+import { useEffect, useState } from 'react';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { UserData } from './types/dto';
+import Loading from 'src/components/globals/Loading';
+import PrivateRoute from './components/Routes/PrivateRoute';
+import ChatGlobalInboxService from './services/Chat/ChatGlobalInboxService';
+import ContactService from './services/Contact/ContactService';
+import Call from './pages/App/Call';
+import IncomingCallDialog from './components/dialogs/call/IncomingCallDialog';
 
 const darkTheme = createTheme({
   palette: {
@@ -37,9 +38,10 @@ const darkTheme = createTheme({
 function App() {
 
 
-  const [authState, setAuthState] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const dispatch = useDispatch()
+  const [authState, setAuthState] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+
 
   useEffect(() => {
     const auth = getAuth(app);
@@ -51,10 +53,10 @@ function App() {
         dispatch(setUser(data));
         ChatGlobalInboxService.listenForIncomingMessages(user.uid, dispatch);
 
-        const additionalData = await AuthService.getUserAdditionalData(user)
+        const additionalData = await AuthService.getUserAdditionalData(user);
 
         if (additionalData) {
-          dispatch(setUserAdditionalData(additionalData))
+          dispatch(setUserAdditionalData(additionalData));
         }
 
       } else {
@@ -73,12 +75,11 @@ function App() {
   useEffect(() => {
     const fetchChats = async () => {
       const _chats = await ContactService.loadUserContact();
-  
-      dispatch(setChatrooms(_chats.contacts))
-    }
+      dispatch(setChatrooms(_chats.contacts));
+    };
 
     fetchChats();
-  }, [dispatch])
+  }, [dispatch]);
 
 
 
@@ -90,6 +91,7 @@ function App() {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
+      <IncomingCallDialog />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<MainLayout />}>

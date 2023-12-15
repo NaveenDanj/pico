@@ -1,3 +1,4 @@
+
 export interface UserData {
     email : string | null,
     displayName : string,
@@ -84,9 +85,20 @@ export interface SignalData {
     candidate?: string;
 }
 
-export interface SignalDataDTO {
-    signalData: SignalData,
-    fromUserId: string,
-    toUserId: string 
-}
 
+// export type SignalData = {
+//     type: 'offer' | 'answer' | 'pranswer' | 'rollback' | 'candidate' | 'connect';
+//     sdp?: string;
+//     candidate?: string; 
+//     [key: string]: unknown;
+// };
+
+export interface CallDTO {
+    callerId:string,
+    calleeId:string,
+    callerPeerId:string|null,
+    calleePeerId:string|null,
+    timestamp:Date
+    answered:boolean,
+    duration:number
+}
