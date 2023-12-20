@@ -1,5 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 import { UserAdditionalData } from 'src/types/dto';
 
 export interface UserState {
@@ -19,22 +19,22 @@ export interface UserData {
 const initialState: UserState = {
   userData: null,
   additionalData : null
-}
+};
 
 export const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
     setUser: (state , action: PayloadAction<UserData>) => {
-      state.userData = action.payload
+      state.userData = action.payload;
     },
 
     setUserAdditionalData: (state , action: PayloadAction<UserAdditionalData>) => {
-      state.additionalData = action.payload
+      state.additionalData = action.payload;
     }
 
   },
-})
+});
 
-export const { setUser , setUserAdditionalData } = userSlice.actions
-export default userSlice.reducer
+export const { setUser , setUserAdditionalData } = userSlice.actions;
+export default userSlice.reducer;

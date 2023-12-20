@@ -1,5 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 import { ChatRoomDTO, GlobalInbox, Message } from 'src/types/dto';
 
 export interface currentChat {
@@ -8,9 +8,9 @@ export interface currentChat {
 }
 
 const initialState: currentChat = {
-    messages: [],
-    selectedChat: null,
-}
+  messages: [],
+  selectedChat: null,
+};
 
 export const currentChatSlice = createSlice({
   name: 'currentChat',
@@ -18,36 +18,36 @@ export const currentChatSlice = createSlice({
   reducers: {
 
     setMessages: (state , action: PayloadAction<GlobalInbox[]>) => {
-        state.messages = []
-        for(let i = 0; i < action.payload.length; i++){
-            const data = action.payload[i];
-            const msg:Message = {
-                message: data.message.message,
-                chatroomId: data.chatroomId,
-                attachments: data.message.attachments,
-                timestamp:  data.message.timestamp,
-                isReplied: data.message.isReplied,
-                repliedTo: data.message.repliedTo,
-                sender: data.fromUser
-            }
-            state.messages.push(msg)
-        }
+      state.messages = [];
+      for(let i = 0; i < action.payload.length; i++){
+        const data = action.payload[i];
+        const msg:Message = {
+          message: data.message.message,
+          chatroomId: data.chatroomId,
+          attachments: data.message.attachments,
+          timestamp:  data.message.timestamp,
+          isReplied: data.message.isReplied,
+          repliedTo: data.message.repliedTo,
+          sender: data.fromUser
+        };
+        state.messages.push(msg);
+      }
     },
 
     addMessage: (state , action: PayloadAction<Message>) => {
-        if(state.selectedChat){
-            if(state.selectedChat.uid == action.payload.chatroomId){
-                state.messages.push(action.payload)
-            }
+      if(state.selectedChat){
+        if(state.selectedChat.uid == action.payload.chatroomId){
+          state.messages.push(action.payload);
         }
+      }
     },
 
     setSelectedChat: (state , action: PayloadAction<ChatRoomDTO>) => {
-        state.selectedChat = action.payload
+      state.selectedChat = action.payload;
     },
 
   },
-})
+});
 
-export const { setMessages , addMessage , setSelectedChat } = currentChatSlice.actions
-export default currentChatSlice.reducer
+export const { setMessages , addMessage , setSelectedChat } = currentChatSlice.actions;
+export default currentChatSlice.reducer;

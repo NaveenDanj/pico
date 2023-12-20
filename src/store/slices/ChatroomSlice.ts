@@ -1,5 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 import { ChatRoomDTO, Message } from 'src/types/dto';
 
 export interface Chatroom {
@@ -13,8 +13,8 @@ export interface UpdateLastMessageDTO {
 }
 
 const initialState: Chatroom = {
-    chatrooms: []
-}
+  chatrooms: []
+};
 
 export const chatroomSlice = createSlice({
   name: 'chatroom',
@@ -22,21 +22,21 @@ export const chatroomSlice = createSlice({
   reducers: {
     
     setChatrooms: (state , action: PayloadAction<ChatRoomDTO[]>) => {
-        state.chatrooms = action.payload
+      state.chatrooms = action.payload;
     },
 
     updateLastMessageData: (state , action: PayloadAction<UpdateLastMessageDTO> ) =>{
-        for(let i = 0; i < state.chatrooms.length; i++){
-            if(action.payload.chatroomId == state.chatrooms[i].uid){
-                state.chatrooms[i].lastMessage = action.payload.lastMessage
-                state.chatrooms[i].lastTimeStamp = action.payload.lastTimeStamp
-                break
-            }
+      for(let i = 0; i < state.chatrooms.length; i++){
+        if(action.payload.chatroomId == state.chatrooms[i].uid){
+          state.chatrooms[i].lastMessage = action.payload.lastMessage;
+          state.chatrooms[i].lastTimeStamp = action.payload.lastTimeStamp;
+          break;
         }
+      }
     },
 
   },
-})
+});
 
-export const { setChatrooms , updateLastMessageData } = chatroomSlice.actions
-export default chatroomSlice.reducer
+export const { setChatrooms , updateLastMessageData } = chatroomSlice.actions;
+export default chatroomSlice.reducer;

@@ -12,10 +12,12 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import { useEffect, useRef, useState } from 'react';
-import Peer from 'peerjs';
-import HandleCallService from 'src/services/Call/HandleCallService';
-import { onValue } from 'firebase/database';
-import { onSnapshot } from 'firebase/firestore';
+import { addDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
+import SimplePeer from 'simple-peer';
+import { v4 as uuidv4 } from 'uuid';
+import { collection , getFirestore, } from 'firebase/firestore';
+import app from 'src/config/FirebaseConfig';
+const db = getFirestore(app);
 
 
 const Transition = React.forwardRef(function Transition(
@@ -27,56 +29,83 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
+
+
 export default function CallMainDialog() {
 
   const [open, setOpen] = useState(false);
   const audioRef: React.MutableRefObject<HTMLAudioElement | null> = useRef(null);
-  const peerRef = useRef<Peer | null>(null);
-  const [myStream, setMyStream] = useState<MediaStream | null>(null);
-  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
-
+  const peerRef = useRef<SimplePeer.Instance | null>(null);
+  const [peerSetted , setPeerSetted] = useState(false);
 
   const initCall = async () => {
 
-    const stream = await navigator.mediaDevices.getUserMedia({audio: true});
-    setMyStream(stream);
+    if(peerSetted){
+      return;
+    }
 
-    peerRef.current = new Peer();
-    
-    peerRef.current.on('open', async (id) => {
-      const _doc = await HandleCallService.addCall('JMSv0xufTRPddRqIvzT0Xiv27Lt2' , id);
-
-      onSnapshot(_doc , (snapshot) => {
-
-        snapshot.docChanges().forEach((change) => {
-          if (change.type === 'modified') {
-            const updatedData = change.doc.data();
-            callPeer(updatedData.calleePeerId);
-          }
-        });
-        
+    try {
+      const callId: string = uuidv4();
+  
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      console.log('Local stream obtained:', stream);
+      
+      const peer = new SimplePeer({ initiator: true, trickle: false , stream: stream});
+      peerRef.current = peer;
+  
+      peerRef.current.on('signal', async (data) => {
+        console.log('Sending offer signal:', data);
+        const docRef = doc(db, 'global_call', 'JMSv0xufTRPddRqIvzT0Xiv27Lt2', 'calls', callId);
+        await setDoc(docRef, { offer: JSON.stringify(data), timestamp: new Date() });
       });
-
-    });
-    
+  
+      peerRef.current.on('stream', (stream) => {
+        console.log('Remote stream received:', stream);
+        if (audioRef.current) {
+          audioRef.current.srcObject = stream;
+          audioRef.current.play();
+        }
+      });
+  
+      peerRef.current.on('data', data => {
+        console.log('Data received:', data);
+      });
+  
+      peerRef.current.on('iceCandidate', async (candidate) => {
+        console.log('Sending iceCandidate:', candidate);
+        const docRef = doc(collection(db, 'global_call', 'JMSv0xufTRPddRqIvzT0Xiv27Lt2', 'calls'), callId);
+        const candidatesCollection = collection(docRef, 'answerCandidates');
+        await addDoc(candidatesCollection, candidate);
+      });
+  
+      peerRef.current.on('connect', () => {
+        console.log('Peer connected!');
+        setPeerSetted(true);
+      });
+  
+      peerRef.current.on('close', () => {
+        console.log('Peer connection closed');
+      });
+  
+      peerRef.current.on('error', (err) => {
+        console.error('Peer Error:', err);
+      });
+  
+      onSnapshot(doc(db, 'global_call', 'JMSv0xufTRPddRqIvzT0Xiv27Lt2', 'calls', callId), (snapshot) => {
+        const data = snapshot.data();
+        if (data && data.answer && peerRef.current && !peerRef.current.connected) {
+          console.log('Answer received:', data);
+          const remoteAnswer = JSON.parse(data.answer);
+          if (remoteAnswer.type === 'answer') {
+            console.log('Connection found');
+            peerRef.current.signal(remoteAnswer);
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error during initCall:', error);
+    }
   };
-
-
-
-  const callPeer = (peerId:string) => {
-    
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const call = peerRef.current.call(peerId, myStream);
-    call.on('stream', (_remoteStream) => {
-      setRemoteStream(_remoteStream);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      audioRef.current.srcObject = remoteStream;
-    });
-
-  };
-
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -85,6 +114,7 @@ export default function CallMainDialog() {
 
   const handleClose = () => {
     setOpen(false);
+    setPeerSetted(false);
   };
 
   useEffect(() => {
