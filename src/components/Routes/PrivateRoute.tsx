@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate } from 'react-router-dom';
 
 
 type ProtectedRotueProp = {
@@ -8,11 +8,11 @@ type ProtectedRotueProp = {
 
 const PrivateRoute = ({ element, isAuth }: ProtectedRotueProp) => {
 
-    if (isAuth) {
-        return element;
-    } else {
-        return <Navigate to={{ pathname: '/auth' }} />;
-    }
+  if (isAuth) {
+    return element;
+  } else {
+    return <Navigate to={{ pathname: '/auth' }} />;
+  }
 
 };
 

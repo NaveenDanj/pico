@@ -2,13 +2,13 @@ import GroupIcon from '@mui/icons-material/Group';
 import SearchIcon from '@mui/icons-material/Search';
 import { Avatar } from '@mui/material';
 import ChatNameItem from 'src/components/chat/ChatNameItem';
-import './index.css'
+import './index.css';
 import AddContactDialog from 'src/components/dialogs/AddContactDialog';
 import { useSelector } from 'react-redux';
 import { RootState } from 'src/store/store';
 
 function Chat() {
-  const chats = useSelector((state: RootState) => state.chatrooms.chatrooms)
+  const chats = useSelector((state: RootState) => state.chatrooms.chatrooms);
 
   return (
     <div>
@@ -64,7 +64,7 @@ function Chat() {
       </div>
 
     </div>
-  )
+  );
 }
 
-export default Chat
+export default Chat;

@@ -11,60 +11,60 @@ import axios from 'axios';
 
 function Emails() {
 
-  const [error , setError] = useState('')
-  const [success , setSuccess] = useState('')
+  const [error , setError] = useState('');
+  const [success , setSuccess] = useState('');
 
-  const [email , setEmail] = useState('')
-  const [host , setHost] = useState('')
-  const [port , setPort] = useState('')
-  const [password , setPassword] = useState('')
+  const [email , setEmail] = useState('');
+  const [host , setHost] = useState('');
+  const [port , setPort] = useState('');
+  const [password , setPassword] = useState('');
 
   // const agent = new https.Agent({ rejectUnauthorized: false });
 
 
   useEffect(() => {
-    fetchMailSettings()
-  }, [])
+    fetchMailSettings();
+  }, []);
 
   const fetchMailSettings = async () =>{
-    const res = await MailSettingService.importEmailSettings()
+    const res = await MailSettingService.importEmailSettings();
 
     if(!res){
-      setError('Something went wrong while fetching data. Please try again!')
-      return
+      setError('Something went wrong while fetching data. Please try again!');
+      return;
     } 
 
-    setEmail(res.email)
-    setHost(res.host)
-    setPort(res.port+'')
-    setPassword(res.password)
+    setEmail(res.email);
+    setHost(res.host);
+    setPort(res.port+'');
+    setPassword(res.password);
 
     const functionURL = 'http://127.0.0.1:5001/pico-cloud/us-central1/fetchEmails';
 
-    const token = await AuthService.getCurrentUserToken()
+    const token = await AuthService.getCurrentUserToken();
 
     axios.get(functionURL , {
       headers: {
         'Authorization': `Bearer ${token}`,
-      }})
+      }});
 
 
-  }
+  };
 
   const handleSubmit = async (e : React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setSuccess('')
-    setError('')
+    e.preventDefault();
+    setSuccess('');
+    setError('');
 
-    const res = await MailSettingService.setupEmailSettings(email , host , port , password)
+    const res = await MailSettingService.setupEmailSettings(email , host , port , password);
 
     if(!res){
-      setError('Something went wrong. Please try again!')
+      setError('Something went wrong. Please try again!');
     }else{
-      setSuccess('Your email account imported successfully!')
+      setSuccess('Your email account imported successfully!');
     }
 
-  }
+  };
 
 
   return (
@@ -139,7 +139,7 @@ function Emails() {
       <div className='tw-w-full tw-p-3 tw-mt-4 tw-flex tw-flex-col tw-gap-0'></div>
 
     </form >
-  )
+  );
 }
 
-export default Emails
+export default Emails;
