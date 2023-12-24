@@ -4,7 +4,6 @@ import CallIcon from '@mui/icons-material/Call';
 import { RootState } from 'src/store/store';
 import { useSelector } from 'react-redux';
 import moment from 'moment';
-import { useEffect } from 'react';
 
 
 
@@ -16,14 +15,6 @@ function CallItem({callItem} : CallItemDTO) {
 
   const user = useSelector((state: RootState) => state.user.additionalData);
 
-
-  useEffect(() => {
-
-    formatDateDisplay(callItem.timestamp);
-    
-  } , []);
-
-
   const trimAndEllipsis = (inputString:string, maxLength:number) => {
     if (inputString.length > maxLength) {
       return inputString.substring(0, maxLength - 3) + '...';
@@ -32,7 +23,8 @@ function CallItem({callItem} : CallItemDTO) {
     }
   };
 
-
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   function formatDateDisplay(date) {
     const d = moment(new Date(date.seconds * 1000));
     const now = moment();
