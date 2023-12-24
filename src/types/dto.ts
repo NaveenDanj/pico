@@ -94,11 +94,13 @@ export interface SignalData {
 // };
 
 export interface CallDTO {
+    id:string,
     callerId:string,
     calleeId:string,
     callerPeerId:string|null,
     calleePeerId:string|null,
     timestamp:Date
     answered:boolean,
-    duration:number
+    dp:string,
+    contactName:string
 }

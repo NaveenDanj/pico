@@ -1,9 +1,30 @@
 import { Avatar } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import StoryItem from 'src/components/story/StoryItem';
 import LinkIcon from '@mui/icons-material/Link';
-import CallMainDialog from 'src/components/dialogs/call/CallMainDialog';
+import { useEffect, useState } from 'react';
+import { CallDTO } from 'src/types/dto';
+import CallItem from 'src/components/call/CallItem';
+import HandleCallService from 'src/services/Call/HandleCallService';
 function Call() {
+
+  const [calls , setCalls] = useState<CallDTO[]>([]);
+
+  useEffect(() => {
+
+    const fetchUserCalls = async () => {
+      const calls = await HandleCallService.getUserCalls();
+      console.log('res is => ' , calls);
+      if(calls.success){
+        setCalls(calls.calls);
+      }
+    };
+
+    fetchUserCalls();
+
+
+  }, []);
+
+
   return (
     <div>
 
@@ -14,7 +35,7 @@ function Call() {
           <h1 className="tw-text-lg tw-font-bold tw-my-auto">Calls</h1>
 
           <div className="tw-flex tw-gap-1 tw-my-auto">
-            <CallMainDialog />
+            {/* <CallMainDialog /> */}
           </div>
 
         </div>
@@ -47,17 +68,7 @@ function Call() {
 
         </div>
 
-        <StoryItem />
-        <StoryItem />
-        <StoryItem />
-        <StoryItem />
-        <StoryItem />
-        <StoryItem />
-        <StoryItem />
-        <StoryItem />
-        <StoryItem />
-        <StoryItem />
-
+        {calls.map((call) => (<CallItem callItem={call} />) )}
       </div>
 
     </div>

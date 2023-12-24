@@ -12,11 +12,13 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import { useEffect, useRef, useState } from 'react';
-import { addDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { addDoc, doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import SimplePeer from 'simple-peer';
 import { v4 as uuidv4 } from 'uuid';
 import { collection , getFirestore, } from 'firebase/firestore';
 import app from 'src/config/FirebaseConfig';
+import { useSelector } from 'react-redux';
+import { RootState } from 'src/store/store';
 const db = getFirestore(app);
 
 
@@ -29,18 +31,28 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
+interface CallMainDTO {
+  calleeId: string,
+  calleeName: string,
+  calleeDp: string
+}
 
 
-export default function CallMainDialog() {
+export default function CallMainDialog({ calleeId , calleeName , calleeDp }:CallMainDTO) {
 
   const [open, setOpen] = useState(false);
   const audioRef: React.MutableRefObject<HTMLAudioElement | null> = useRef(null);
   const peerRef = useRef<SimplePeer.Instance | null>(null);
   const [peerSetted , setPeerSetted] = useState(false);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [callStatus , setCallStatus] = useState('Calling...');
+  const user = useSelector((state: RootState) => state.user.userData);
+  const [localStream , setLocalStream] = useState<MediaStream>();
+
 
   const initCall = async () => {
 
-    if(peerSetted){
+    if(peerSetted && !user){
       return;
     }
 
@@ -48,15 +60,17 @@ export default function CallMainDialog() {
       const callId: string = uuidv4();
   
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-      console.log('Local stream obtained:', stream);
+      setLocalStream(stream);
       
-      const peer = new SimplePeer({ initiator: true, trickle: false , stream: stream});
+      const peer = new SimplePeer({ initiator: true, trickle: false , stream: localStream});
       peerRef.current = peer;
   
       peerRef.current.on('signal', async (data) => {
         console.log('Sending offer signal:', data);
-        const docRef = doc(db, 'global_call', 'JMSv0xufTRPddRqIvzT0Xiv27Lt2', 'calls', callId);
-        await setDoc(docRef, { offer: JSON.stringify(data), timestamp: new Date() });
+        const docRef = doc(db, 'global_call', calleeId , 'calls', callId);
+        const docRef2 = doc(db, 'global_call', user?.uid+'' , 'calls', callId);
+        await setDoc(docRef, { offer: JSON.stringify(data), timestamp: new Date() , caller:  user?.uid , callee : calleeId , answered : false});
+        await setDoc(docRef2, { offer: JSON.stringify(data), timestamp: new Date() , caller:  user?.uid , callee : calleeId , answered : false});
       });
   
       peerRef.current.on('stream', (stream) => {
@@ -73,35 +87,65 @@ export default function CallMainDialog() {
   
       peerRef.current.on('iceCandidate', async (candidate) => {
         console.log('Sending iceCandidate:', candidate);
-        const docRef = doc(collection(db, 'global_call', 'JMSv0xufTRPddRqIvzT0Xiv27Lt2', 'calls'), callId);
+        const docRef = doc(collection(db, 'global_call', calleeId , 'calls'), callId);
         const candidatesCollection = collection(docRef, 'answerCandidates');
         await addDoc(candidatesCollection, candidate);
       });
   
-      peerRef.current.on('connect', () => {
+      peerRef.current.on('connect', async () => {
         console.log('Peer connected!');
         setPeerSetted(true);
+        setStartTime(Date.now());
+        const docRef = doc(collection(db, 'global_call', calleeId , 'calls'), callId);
+        const docRef2 = doc(db, 'global_call', user?.uid+'' , 'calls', callId);
+
+        await updateDoc(docRef , {
+          answered: true,
+          callStartTime: Date.now()
+        });
+
+        await updateDoc(docRef2 , {
+          answered: true,
+          callStartTime: Date.now()
+        });
+
       });
   
-      peerRef.current.on('close', () => {
-        console.log('Peer connection closed');
+      peerRef.current.on('close', async () => {
+        const docRef = doc(collection(db, 'global_call', calleeId , 'calls'), callId);
+        const docRef2 = doc(db, 'global_call', user?.uid+'' , 'calls', callId);
+
+        await updateDoc(docRef , {
+          callEndTime: Date.now()
+        });
+
+        await updateDoc(docRef2 , {
+          callEndTime: Date.now()
+        });
+
+        setPeerSetted(false);
+        setStartTime(null);
+        setCallStatus('Calling...');
+        peerRef.current?.destroy();
+        
+        setOpen(false);
+        stopMic();
       });
   
       peerRef.current.on('error', (err) => {
         console.error('Peer Error:', err);
       });
   
-      onSnapshot(doc(db, 'global_call', 'JMSv0xufTRPddRqIvzT0Xiv27Lt2', 'calls', callId), (snapshot) => {
+      onSnapshot(doc(db, 'global_call', calleeId , 'calls', callId), (snapshot) => {
         const data = snapshot.data();
         if (data && data.answer && peerRef.current && !peerRef.current.connected) {
-          console.log('Answer received:', data);
           const remoteAnswer = JSON.parse(data.answer);
           if (remoteAnswer.type === 'answer') {
-            console.log('Connection found');
             peerRef.current.signal(remoteAnswer);
           }
         }
       });
+      
     } catch (error) {
       console.error('Error during initCall:', error);
     }
@@ -117,9 +161,47 @@ export default function CallMainDialog() {
     setPeerSetted(false);
   };
 
+
+  const stopMic = () => {
+    if (localStream) {
+      const audioTracks = localStream.getAudioTracks();
+      audioTracks.forEach(track => track.stop());
+    }
+  };
+
   useEffect(() => {
 
-  }, []);
+    const intervalId = setInterval(() => {
+      updateCallDuration();
+    }, 1000);
+    
+    const formatDuration = (duration: number) => {
+  
+      if(startTime){
+        const minutes = Math.floor(duration / 60);
+        const seconds = duration % 60;
+        setCallStatus(`${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
+      }else{
+        setCallStatus('Calling...');
+      }
+  
+    };
+
+    const updateCallDuration = () => {
+      if (startTime !== null) {
+        const currentTime = Math.floor((Date.now() - startTime) / 1000);
+        formatDuration(currentTime);
+      }
+    };
+
+    return () => {
+      clearInterval(intervalId);
+      // peerRef.current?.destroy();
+      // peerRef.current = null;
+    };
+
+  }, [startTime]);
+
 
   return (
     <>
@@ -156,15 +238,15 @@ export default function CallMainDialog() {
         <div className='tw-w-full tw-h-full tw-flex tw-justify-center tw-items-center' style={{ backgroundImage: 'url(./pattern.png)' }}>
           <div className=' tw-justify-center'>
             <div className='tw-flex tw-justify-center'>
-              <Avatar src='https://avatars.githubusercontent.com/u/48654030?v=4' sx={{ width: 150, height: 150 }} />
+              <Avatar src={calleeDp} sx={{ width: 150, height: 150 }} />
             </div>
 
-            <div className='tw-mt-4'>
-              <label className='tw-text-xl'>Naveen Dhananjaya</label>
+            <div className='tw-mt-4 tw-flex tw-justify-center'>
+              <label className='tw-text-xl'>{calleeName}</label>
             </div>
 
             <div className='tw-mt-2 tw-flex  tw-justify-center'>
-              <label className='tw-text-sm tw-font-extralight'>Calling...</label>
+              <label className='tw-text-sm tw-font-extralight'>{callStatus}</label>
             </div>
           </div>
         </div>

@@ -10,6 +10,7 @@ import { RootState } from 'src/store/store';
 import { Message } from 'src/types/dto';
 import ChatGlobalInboxService from 'src/services/Chat/ChatGlobalInboxService';
 import ContactDetailsSingleDialog from '../dialogs/ContactDetailsDialogSingle';
+import CallMainDialog from '../dialogs/call/CallMainDialog';
 
 
 function ChatView() {
@@ -54,9 +55,7 @@ function ChatView() {
 
           <div className="tw-ml-2 tw-flex tw-gap-2">
 
-            <div className="tw-w-[45px] tw-p-2 tw-flex tw-justify-center tw-rounded-md  hover:tw-bg-[#333333]">
-              <EmailIcon sx={{ width: 16 }} />
-            </div>
+            <CallMainDialog calleeId={selectedChat.contats.userUID} calleeDp={selectedChat.contats.dp} calleeName={selectedChat.contats.contactName} />
 
             <div className="tw-w-[45px] tw-p-2 tw-flex tw-justify-center tw-rounded-md  hover:tw-bg-[#333333]">
               <SearchIcon sx={{ width: 16 }} />

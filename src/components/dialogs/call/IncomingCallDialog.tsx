@@ -12,7 +12,7 @@ import VideocamIcon from '@mui/icons-material/Videocam';
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import {useEffect, useState } from 'react';
 
-import { collection, onSnapshot , getFirestore, query , where, orderBy, QueryDocumentSnapshot, DocumentData, doc, updateDoc, addDoc } from 'firebase/firestore';
+import { collection, onSnapshot , getFirestore, query , where, orderBy, QueryDocumentSnapshot, DocumentData, doc, updateDoc, addDoc, DocumentChange } from 'firebase/firestore';
 import app from 'src/config/FirebaseConfig';
 import SimplePeer from 'simple-peer';
 import { useSelector } from 'react-redux';
@@ -39,6 +39,10 @@ export default function IncomingCallDialog() {
   const [peerSetted, setPeerSetted] = useState(false);
   const [callAnswered, setCallAnswered] = useState(false);
   const [hasAnsweredCall, setHasAnsweredCall] = useState(false);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [callStatus , setCallStatus] = useState('Calling...');
+  const [latestCall , setLatestCall] = useState<DocumentChange<DocumentData, DocumentData>>();
+
 
   const handleClose = () => {
     setOpen(false);
@@ -46,28 +50,58 @@ export default function IncomingCallDialog() {
   };
 
   useEffect(() => {
+    const intervalId = setInterval(() => {
+      updateCallDuration();
+    }, 1000);
+    
+    const formatDuration = (duration: number) => {
+  
+      if(startTime){
+        const minutes = Math.floor(duration / 60);
+        const seconds = duration % 60;
+        setCallStatus(`${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
+      }else{
+        setCallStatus('Calling...');
+      }
+  
+    };
+
+    const updateCallDuration = () => {
+      if (startTime !== null) {
+        const currentTime = Math.floor((Date.now() - startTime) / 1000);
+        formatDuration(currentTime);
+      }
+    };
+
+    return () => {
+      clearInterval(intervalId);
+    };
+
+  });
+
+  useEffect(() => {
     let isMounted = true;
     if(user){
+      console.log('callee is => ' , user.uid);
       const q = query(
         collection(db, 'global_call', user.uid, 'calls' ),
-        where('timestamp', '>', new Date()), // Only get documents created after lastTimestamp
+        where('timestamp', '>', new Date()),
         orderBy('timestamp')
       );
 
       onSnapshot(q , snapshot => {
         snapshot.docChanges().forEach(change => {
-          console.log('peer setted => ');
           if (change.type === 'added' && !peerSetted && !callAnswered && !hasAnsweredCall && isMounted) {
-            console.log('ran once!');
-            setPeerSetted(true);
-            answerCall(change.doc.id, change.doc);
-            setOpen(true);
-            setCallAnswered(true);
-            setHasAnsweredCall(true);
+            const data = change.doc.data();
+            if(data.callee == user.uid){
+              setLatestCall(change);
+              setOpen(true);
+            }
           }
         });
       });
     }
+
 
     return () => {
       isMounted = false;
@@ -110,11 +144,12 @@ export default function IncomingCallDialog() {
   
       peerRef.current.on('connect', () => {
         console.log('Peer connected!');
-        peerRef.current?.send('hello back');
+        setStartTime(Date.now());
       });
   
       peerRef.current.on('close', () => {
         console.log('Peer connection closed');
+        setOpen(false);
       });
   
       peerRef.current.on('error', (err) => {
@@ -136,6 +171,15 @@ export default function IncomingCallDialog() {
     } catch (error) {
       console.error('Error during answerCall:', error);
     }
+  };
+
+  const handleAnswerCall = async () => {
+    setPeerSetted(true);
+    if(latestCall){
+      answerCall(latestCall.doc.id, latestCall.doc);
+      setCallAnswered(true);
+      setHasAnsweredCall(true);
+    } 
   };
 
 
@@ -178,38 +222,63 @@ export default function IncomingCallDialog() {
             </div>
 
             <div className='tw-mt-4'>
-              <label className='tw-text-xl'>Naveen Dhananjaya</label>
+              <center><label className='tw-text-xl'>Naveen Dhananjaya</label></center>
             </div>
 
             <div className='tw-mt-2 tw-flex  tw-justify-center'>
-              <label className='tw-text-sm tw-font-extralight'>Calling...</label>
+              <label className='tw-text-sm tw-font-extralight'>{callStatus}</label>
             </div>
+
+            {!hasAnsweredCall && (
+              <div className='tw-flex tw-gap-6 tw-mt-10'>
+                          
+                <button style={{ width : 60 , height: 40 , borderRadius: 20 }} className='tw-bg-[#D53A2C] tw-flex tw-justify-center tw-my-auto tw-items-center'>
+                  <CallEndIcon className='tw-text-white tw-my-auto' sx={{ fontSize : 18 }} />
+                </button>
+
+                <button onClick={() => handleAnswerCall()} style={{ borderRadius: 30 }} className='tw-bg-[#24CA63] tw-flex tw-justify-center tw-my-auto tw-items-center tw-px-6'>
+                  <CallEndIcon className='tw-text-white tw-my-auto' sx={{ fontSize : 18 }} />
+                  <label className='tw-ml-4 tw-text-sm tw-my-auto'>Accept</label>
+                </button>
+
+                <button style={{ width : 60 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-my-auto tw-items-center'>
+                  <MoreHorizIcon sx={{ fontSize : 18 }} />
+                </button>
+
+                          
+              </div>
+            )}
+
+
           </div>
 
         </div>
 
-        <div className='tw-bg-[#202020] tw-h-[70px] tw-items-center tw-flex tw-justify-center'>
-                    
-          <div className='tw-flex  tw-gap-4'>
-                        
-            <button style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
-              <MicIcon sx={{ fontSize : 18 }} />
-            </button>
+        <div className='tw-bg-[#202020] tw-h-[75px] tw-items-center tw-flex tw-justify-center'>
 
-            <button style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
-              <VideocamIcon sx={{ fontSize : 18 }} />
-            </button>
+          {hasAnsweredCall && (
+            <div className='tw-flex  tw-gap-4'>
+                          
+              <button style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
+                <MicIcon sx={{ fontSize : 18 }} />
+              </button>
 
-            <button style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#D5382F] tw-flex tw-justify-center tw-items-center'>
-              <CallEndIcon className='tw-text-white' sx={{ fontSize : 18 }} />
-            </button>
+              <button style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
+                <VideocamIcon sx={{ fontSize : 18 }} />
+              </button>
 
-            <button style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
-              <MoreHorizIcon sx={{ fontSize : 18 }} />
-            </button>
+              <button onClick={() => handleAnswerCall()} style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#D5382F] tw-flex tw-justify-center tw-items-center'>
+                <CallEndIcon className='tw-text-white' sx={{ fontSize : 18 }} />
+              </button>
 
-                        
-          </div>
+              <button style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
+                <MoreHorizIcon sx={{ fontSize : 18 }} />
+              </button>
+
+            </div>
+          )}
+
+
 
         </div>
             
