@@ -3,18 +3,16 @@ import { RootState } from 'src/store/store';
 import SelectedChatHeader from './chat/SelectedChatHeader';
 import ChatInputSection from './chat/ChatInputSection';
 import { useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
 import ChatSectionWrapper from './chat/ChatSectionWrapper';
+import CallViewSection from './call/CallViewSection';
 
 function ChatView() {
   const location = useLocation();
   const selectedChat = useSelector((state: RootState) => state.currentChat.selectedChat);
 
-  useEffect(() => {console.log(location.pathname);});
-
   return (
     <>
-      { (location.pathname == '/' && selectedChat) && (
+      { ( (location.pathname == '/' || location.pathname == '/starred' || location.pathname == '/archived') && selectedChat) && (
         <>
           <SelectedChatHeader selectedChat={selectedChat} />
           <ChatSectionWrapper />
@@ -22,8 +20,8 @@ function ChatView() {
         </>
       )}
 
-      { (location.pathname == '/' && selectedChat) && (
-        
+      { (location.pathname == '/call' ) && (
+        <CallViewSection />
       )}
 
     </>
