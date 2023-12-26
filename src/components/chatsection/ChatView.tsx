@@ -9,6 +9,7 @@ import CallViewSection from './call/CallViewSection';
 function ChatView() {
   const location = useLocation();
   const selectedChat = useSelector((state: RootState) => state.currentChat.selectedChat);
+  const selectedCallInfo = useSelector((state: RootState) => state.callInfo );
 
   return (
     <>
@@ -20,7 +21,7 @@ function ChatView() {
         </>
       )}
 
-      { (location.pathname == '/call' ) && (
+      { (location.pathname == '/call' && selectedCallInfo.selectedCall ) && (
         <CallViewSection />
       )}
 

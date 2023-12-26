@@ -2,8 +2,9 @@ import { Avatar } from '@mui/material';
 import { CallDTO } from 'src/types/dto';
 import CallIcon from '@mui/icons-material/Call';
 import { RootState } from 'src/store/store';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
+import { setCurrentCall } from 'src/store/slices/CallInfoSlice';
 
 
 
@@ -14,6 +15,8 @@ interface CallItemDTO {
 function CallItem({callItem} : CallItemDTO) {
 
   const user = useSelector((state: RootState) => state.user.additionalData);
+  const dispatch = useDispatch();
+
 
   const trimAndEllipsis = (inputString:string, maxLength:number) => {
     if (inputString.length > maxLength) {
@@ -42,9 +45,13 @@ function CallItem({callItem} : CallItemDTO) {
     }
   }
 
+  const handleClick = () => {
+    dispatch(setCurrentCall(callItem));
+  };
+
 
   return (
-    <div className='tw-w-full tw-flex tw-justify-between tw-p-2 tw-rounded-md tw-cursor-pointer'>
+    <div onClick={() => handleClick()} className='tw-w-full tw-flex tw-justify-between tw-p-2 tw-rounded-md tw-cursor-pointer'>
 
       <div className='tw-flex tw-gap-4 tw-w-full'>
 
