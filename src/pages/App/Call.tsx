@@ -5,15 +5,18 @@ import { useEffect, useState } from 'react';
 import { CallDTO } from 'src/types/dto';
 import CallItem from 'src/components/call/CallItem';
 import HandleCallService from 'src/services/Call/HandleCallService';
+import LoadingComponent from 'src/components/dialogs/LoadingComponent';
 function Call() {
 
   const [calls , setCalls] = useState<CallDTO[]>([]);
+  const [loading , setLoading] = useState(true);
 
   useEffect(() => {
 
     const fetchUserCalls = async () => {
+      setLoading(true);
       const calls = await HandleCallService.getUserCalls();
-      console.log('res is => ' , calls);
+      setLoading(false);
       if(calls.success){
         setCalls(calls.calls);
       }
@@ -21,8 +24,11 @@ function Call() {
 
     fetchUserCalls();
 
-
   }, []);
+
+  if(loading) return (
+    <LoadingComponent />
+  );
 
 
   return (
