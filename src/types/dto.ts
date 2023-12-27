@@ -85,14 +85,6 @@ export interface SignalData {
     candidate?: string;
 }
 
-
-// export type SignalData = {
-//     type: 'offer' | 'answer' | 'pranswer' | 'rollback' | 'candidate' | 'connect';
-//     sdp?: string;
-//     candidate?: string; 
-//     [key: string]: unknown;
-// };
-
 export interface CallDTO {
     id:string,
     callerId:string,
@@ -103,4 +95,13 @@ export interface CallDTO {
     answered:boolean,
     dp:string,
     contactName:string
+}
+
+export interface Attachment {
+    filename: string,
+    extension: string,
+    fileSize: number,
+    path:string,
+    sender:string,
+    chatroom:string
 }

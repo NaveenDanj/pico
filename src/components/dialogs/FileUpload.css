@@ -1,0 +1,17 @@
+
+/* WebKit (Chrome, Safari) scrollbar styles */
+#custom-scrollbar::-webkit-scrollbar {
+    height: 3px; /* Set the width of the scrollbar */
+}
+
+#custom-scrollbar::-webkit-scrollbar-thumb {
+    height: 3px;
+    background-color: #A0A0A0; /* Color of the thumb */
+    background: blue; 
+}
+
+#custom-scrollbar::-webkit-scrollbar-track {
+    background-color: #2C2C2C; /* Color of the track */
+    width: 10px;
+    height: 10px;
+}

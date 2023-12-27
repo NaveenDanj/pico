@@ -1,9 +1,9 @@
 import EmailIcon from '@mui/icons-material/Email';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
 import SendIcon from '@mui/icons-material/Send';
 import { useState , KeyboardEvent } from 'react';
 import { ChatRoomDTO, Message } from 'src/types/dto';
 import ChatGlobalInboxService from 'src/services/Chat/ChatGlobalInboxService';
+import FileUploadDialog from 'src/components/dialogs/FileUploadDialog';
 
 interface ChatInputSectionDTO {
     selectedChat: ChatRoomDTO | null 
@@ -44,10 +44,7 @@ function ChatInputSection({ selectedChat }: ChatInputSectionDTO) {
         <EmailIcon sx={{ width: 16 }} />
       </div>
 
-      <div className="tw-w-[45px] tw-p-1 tw-flex tw-justify-center tw-rounded-md  hover:tw-bg-[#333333]">
-        <AttachFileIcon sx={{ width: 16 }} />
-      </div>
-
+      <FileUploadDialog />
 
       <div className="tw-w-full">
         <input value={messageText} onChange={(e) => setMessageText(e.target.value)} onKeyDown={handleKeyDown} type="text" placeholder="Type a message" className=' tw-w-full tw-ml-2 tw-p-1 tw-text-xs' />
