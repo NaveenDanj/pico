@@ -98,10 +98,14 @@ export interface CallDTO {
 }
 
 export interface Attachment {
-    filename: string,
+    user:string
+    fileName: string,
+    originalFileName: string,
     extension: string,
     fileSize: number,
-    path:string,
-    sender:string,
-    chatroom:string
+    url:string,
+    chatRoomId:string | null,
+    messageId: string | null,
+    timestamp: Date,
+    type: string
 }

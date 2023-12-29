@@ -13,8 +13,7 @@ interface ChatInputSectionDTO {
 function ChatInputSection({ selectedChat }: ChatInputSectionDTO) {
 
   const [messageText, setMessageText] = useState('');
-
-
+  
   const handleKeyDown = async (event: KeyboardEvent<HTMLInputElement>) => {
 
     if (!selectedChat) {

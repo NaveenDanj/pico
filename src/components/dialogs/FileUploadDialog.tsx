@@ -115,8 +115,8 @@ export default function FileUploadDialog() {
         <div className='tw-flex tw-flex-col tw-w-full tw-h-full'>
             
           <div className="tw-w-full tw-flex tw-justify-end ">
-            <div onClick={() => handleClose()} className=" tw-p-1 tw-mr-2 tw-mt-1 tw-flex tw-items-center tw-justify-center tw-rounded-md tw-bg-[#333333]  hover:tw-bg-[#383838]">
-              <CloseIcon sx={{ fontSize : 18 }} />
+            <div onClick={() => handleClose()} className=" tw-p-1 tw-mr-2 tw-mt-1 tw-flex tw-items-center tw-justify-center tw-rounded-md tw-bg-[#383838] ">
+              <CloseIcon className='tw-cursor-pointer' sx={{ fontSize : 20 }} />
             </div>
           </div>
             
