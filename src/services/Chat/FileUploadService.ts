@@ -1,7 +1,7 @@
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import AuthService from '../Auth/AuthService';
 import { User } from 'firebase/auth';
-import { addDoc, collection, getFirestore } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc, getFirestore } from 'firebase/firestore';
 
 import app from 'src/config/FirebaseConfig';
 import { Attachment } from 'src/types/dto';
@@ -9,7 +9,7 @@ const db = getFirestore(app);
 
 export default {
     
-  uploadFile: async (file:File) => {
+  uploadFile: async (file:File , chatroomId:string) => {
 
     const user:User | null = await AuthService.checkAuthState();
 
@@ -39,7 +39,7 @@ export default {
         fileSize: file.size,
         type: file.type,
         messageId: null,
-        chatRoomId: null,
+        chatRoomId: chatroomId,
         url: downloadURL,
         extension: extension
       };
@@ -61,6 +61,23 @@ export default {
 
     }
 
+
+  },
+
+  getAttachment: async(attachments:string[]) => {
+    const out:string[] = [];
+
+    for(let i = 0; i < attachments.length; i++){
+      const docRef = doc(db , 'attachments' , attachments[i]);
+      const data = await getDoc(docRef);
+
+      if(data.exists()){
+        out.push(data.data().url);
+      }
+      
+    }
+
+    return out;
 
   }
 

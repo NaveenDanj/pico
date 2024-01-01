@@ -6,12 +6,20 @@ import AddIcon from '@mui/icons-material/Add';
 import ArticleIcon from '@mui/icons-material/Article';
 import CloseIcon from '@mui/icons-material/Close';
 import './FileUpload.css';
+import { Message } from 'src/types/dto';
+import FileUploadService from 'src/services/Chat/FileUploadService';
+import { useSelector } from 'react-redux';
+import { RootState } from 'src/store/store';
+import ChatGlobalInboxService from 'src/services/Chat/ChatGlobalInboxService';
 
 export default function FileUploadDialog() {
   const [open, setOpen] = React.useState(false);
   const [fileList , setFileList] = React.useState<File[]>([]);
   const [selectedFileDisplay , setSelectedFileDisplay] = React.useState(0);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [messageText , setMessageText] = React.useState('');
+  const selectedChat = useSelector((state: RootState) => state.currentChat.selectedChat );
+
 
   const handleClickOpen = () => {
     if(fileInputRef.current){
@@ -83,6 +91,34 @@ export default function FileUploadDialog() {
     setFileList([]);
   };
 
+
+  const handleSendMessage = async () => {
+    if(!selectedChat) return;
+    const attachments:string[] = [];
+
+    for(let i = 0; i < fileList.length; i++){
+      const res = await FileUploadService.uploadFile(fileList[i] , selectedChat.uid);
+
+      if(res.success && res.doc){
+        attachments.push(res.doc?.id);
+      }
+
+    }
+
+    const messageObject: Message = {
+      message: messageText,
+      chatroomId: selectedChat.uid,
+      attachments: attachments,
+      timestamp: new Date(),
+      isReplied: false,
+      repliedTo: null
+    };
+    const res = await ChatGlobalInboxService.sendToGlobalIndex(messageObject, selectedChat.contats.userUID, selectedChat.uid);
+    console.log(res);
+  };
+
+
+
   return (
     <div>
 
@@ -129,7 +165,7 @@ export default function FileUploadDialog() {
           <div className='tw-flex tw-flex-col tw-bg-[#2C2C2C] tw-w-full tw-p-3 tw-gap-2'>
             
             <div className="tw-w-full">
-              <input type="text" placeholder="Caption (optional)" className=' tw-w-full tw-p-1 tw-text-xs' />
+              <input value={messageText} onChange={(e) => setMessageText(e.target.value)} type="text" placeholder="Caption (optional)" className=' tw-w-full tw-p-1 tw-text-xs' />
             </div>
 
             <div className='tw-flex tw-w-full '>
@@ -158,7 +194,7 @@ export default function FileUploadDialog() {
                   <AddIcon sx={{ width: 16 }} />
                 </div>
 
-                <div className="tw-w-[50px]  tw-p-1 tw-flex tw-items-center tw-justify-center tw-rounded-md tw-bg-[#1DAA61]  hover:tw-bg-[#1B9355]">
+                <div onClick={handleSendMessage} className="tw-w-[50px]  tw-p-1 tw-flex tw-items-center tw-justify-center tw-rounded-md tw-bg-[#1DAA61]  hover:tw-bg-[#1B9355]">
                   <SendIcon sx={{ width: 16 }} />
                 </div>
               </div>

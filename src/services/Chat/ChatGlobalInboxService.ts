@@ -65,7 +65,16 @@ export default {
     // send the message to the chatroom
     const chatroomRef = doc(db, 'chatrooms', chatroomId);
     const msgRef = collection(chatroomRef, 'messages');
-    await addDoc(msgRef, data);
+    const message_doc = await addDoc(msgRef, data);
+
+
+    for(let i = 0; i < message.attachments.length; i++){
+      const attachment_doc_ref = doc(db , 'attachments' , message.attachments[i]);
+      await updateDoc(attachment_doc_ref , {
+        messageId: message_doc.id
+      });
+    }
+
 
     // update last message
     await updateDoc(chatroomRef, {
