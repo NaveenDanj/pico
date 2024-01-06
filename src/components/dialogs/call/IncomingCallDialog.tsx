@@ -86,7 +86,7 @@ export default function IncomingCallDialog() {
       const q = query(
         collection(db, 'global_call', user.uid, 'calls' ),
         where('timestamp', '>', new Date()),
-        orderBy('timestamp')
+        orderBy('timestamp')  
       );
 
       onSnapshot(q , snapshot => {
@@ -113,64 +113,61 @@ export default function IncomingCallDialog() {
 
   const answerCall = async (callId: string, answer: QueryDocumentSnapshot<DocumentData, DocumentData>) => {
 
-    try {
 
-      if (hasAnsweredCall) {
-        return; // Avoid running the logic if already answered
-      }
-
-      const localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-      console.log('Local stream obtained:', localStream);
-      const peer = new SimplePeer({ initiator: false, trickle: false , stream : localStream});
-      peerRef.current = peer;
-
-      const offerData = JSON.parse(answer.data().offer);
-      peerRef.current.signal(offerData);
-  
-      peerRef.current.on('signal', async (ans) => {
-        console.log('Sending answer signal:', ans);
-        const docRef = doc(db, 'global_call', 'JMSv0xufTRPddRqIvzT0Xiv27Lt2', 'calls', callId);
-        await updateDoc(docRef, { answer: JSON.stringify(ans) });
-      });
-  
-  
-      peerRef.current.on('stream', (stream) => {
-        console.log('Remote stream received:', stream);
-        if (audioRef.current) {
-          audioRef.current.srcObject = stream;
-          audioRef.current.play();
-        }
-      });
-  
-      peerRef.current.on('connect', () => {
-        console.log('Peer connected!');
-        setStartTime(Date.now());
-      });
-  
-      peerRef.current.on('close', () => {
-        console.log('Peer connection closed');
-        setOpen(false);
-      });
-  
-      peerRef.current.on('error', (err) => {
-        console.error('Peer Error:', err);
-      });
-  
-      peerRef.current.on('data', data => {
-        console.log('Data received:', data);
-      });
-  
-      peerRef.current.on('iceCandidate', async (candidate) => {
-        console.log('Sending iceCandidate:', candidate);
-        const candidatesCollection = collection(db, 'global_call', 'JMSv0xufTRPddRqIvzT0Xiv27Lt2', 'calls', callId, 'offerCandidates');
-        await addDoc(candidatesCollection, candidate);
-      });
-
-      setHasAnsweredCall(true);
-
-    } catch (error) {
-      console.error('Error during answerCall:', error);
+    if (hasAnsweredCall) {
+      return;
     }
+
+    const localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    console.log('Local stream obtained:', localStream);
+    const peer = new SimplePeer({ initiator: false, trickle: false , stream : localStream});
+    peerRef.current = peer;
+
+    const offerData = JSON.parse(answer.data().offer);
+    peerRef.current.signal(offerData);
+  
+    peerRef.current.on('signal', async (ans) => {
+      console.log('Sending answer signal:', ans);
+      const docRef = doc(db, 'global_call', 'JMSv0xufTRPddRqIvzT0Xiv27Lt2', 'calls', callId);
+      await updateDoc(docRef, { answer: JSON.stringify(ans) });
+    });
+  
+  
+    peerRef.current.on('stream', (stream) => {
+      console.log('Remote stream received:', stream);
+      if (audioRef.current) {
+        audioRef.current.srcObject = stream;
+        audioRef.current.play();
+      }
+    });
+  
+    peerRef.current.on('connect', () => {
+      console.log('Peer connected!');
+      setStartTime(Date.now());
+      peerRef.current?.send('hello world');
+    });
+  
+    peerRef.current.on('close', () => {
+      console.log('Peer connection closed');
+      setOpen(false);
+    });
+  
+    peerRef.current.on('error', (err) => {
+      console.error('Peer Error:', err);
+    });
+  
+    peerRef.current.on('data', data => {
+      console.log('Data received:', data);
+    });
+  
+    peerRef.current.on('iceCandidate', async (candidate) => {
+      console.log('Sending iceCandidate:', candidate);
+      const candidatesCollection = collection(db, 'global_call', 'JMSv0xufTRPddRqIvzT0Xiv27Lt2', 'calls', callId, 'offerCandidates');
+      await addDoc(candidatesCollection, candidate);
+    });
+
+    setHasAnsweredCall(true);
+
   };
 
   const handleAnswerCall = async () => {

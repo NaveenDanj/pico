@@ -65,14 +65,19 @@ export default {
   },
 
   getAttachment: async(attachments:string[]) => {
-    const out:string[] = [];
+    const out:{url: string , type: string , name:string}[] = [];
 
     for(let i = 0; i < attachments.length; i++){
       const docRef = doc(db , 'attachments' , attachments[i]);
       const data = await getDoc(docRef);
-
+      
       if(data.exists()){
-        out.push(data.data().url);
+        const file_type = data.data().type.split('/')[0];
+        out.push({
+          'url' : data.data().url,
+          'type' : file_type,
+          'name' : data.data().fileName
+        });
       }
       
     }

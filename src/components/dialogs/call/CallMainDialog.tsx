@@ -60,9 +60,10 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
       const callId: string = uuidv4();
   
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      console.log('stream obtained => ' , stream);
       setLocalStream(stream);
       
-      const peer = new SimplePeer({ initiator: true, trickle: false , stream: localStream});
+      const peer = new SimplePeer({ initiator: true, trickle: false , stream: stream});
       peerRef.current = peer;
   
       peerRef.current.on('signal', async (data) => {
@@ -138,6 +139,7 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
   
       onSnapshot(doc(db, 'global_call', calleeId , 'calls', callId), (snapshot) => {
         const data = snapshot.data();
+        console.log('data is => ' , data);
         if (data && data.answer && peerRef.current && !peerRef.current.connected) {
           const remoteAnswer = JSON.parse(data.answer);
           if (remoteAnswer.type === 'answer') {
