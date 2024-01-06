@@ -128,7 +128,7 @@ export default function IncomingCallDialog() {
   
     peerRef.current.on('signal', async (ans) => {
       console.log('Sending answer signal:', ans);
-      const docRef = doc(db, 'global_call', 'JMSv0xufTRPddRqIvzT0Xiv27Lt2', 'calls', callId);
+      const docRef = doc(db, 'global_call', user?.uid+'', 'calls', callId);
       await updateDoc(docRef, { answer: JSON.stringify(ans) });
     });
   
@@ -162,7 +162,7 @@ export default function IncomingCallDialog() {
   
     peerRef.current.on('iceCandidate', async (candidate) => {
       console.log('Sending iceCandidate:', candidate);
-      const candidatesCollection = collection(db, 'global_call', 'JMSv0xufTRPddRqIvzT0Xiv27Lt2', 'calls', callId, 'offerCandidates');
+      const candidatesCollection = collection(db, 'global_call', user?.uid+'', 'calls', callId, 'offerCandidates');
       await addDoc(candidatesCollection, candidate);
     });
 
