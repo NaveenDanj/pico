@@ -53,6 +53,15 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
   const [localStream , setLocalStream] = useState<MediaStream>();
   const [isMicMuted, setIsMicMuted] = useState(false);
 
+
+
+  useEffect(() => {
+    console.log('latest call => ' , localStream);
+    initCall();
+  }, [localStream]);
+
+
+
   const initCall = async () => {
 
     if(peerSetted && !user){
@@ -61,12 +70,9 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
 
     try {
       const callId: string = uuidv4();
-  
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-      console.log('stream obtained => ' , stream);
-      setLocalStream(stream);
+      console.log('stream obtained => ' , localStream);
       
-      const peer = new SimplePeer({ initiator: true, trickle: false , stream: stream});
+      const peer = new SimplePeer({ initiator: true, trickle: false , stream: localStream});
       peerRef.current = peer;
   
       peerRef.current.on('signal', async (data) => {
@@ -137,8 +143,8 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
       });
   
       peerRef.current.on('error', (err) => {
-        console.error('Peer Error:', err);
         handleClose();
+        console.error('Peer Error:', err);
       });
   
       onSnapshot(doc(db, 'global_call', calleeId , 'calls', callId), (snapshot) => {
@@ -147,7 +153,7 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
         if (data && data.answer && peerRef.current && !peerRef.current.connected) {
           const remoteAnswer = JSON.parse(data.answer);
           if (remoteAnswer.type === 'answer') {
-            peerRef.current.signal(remoteAnswer);
+            if(!peerRef.current.destroyed) peerRef.current.signal(remoteAnswer);
           }
         }
       });
@@ -160,7 +166,8 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
 
   const handleClickOpen = () => {
     setOpen(true);
-    initCall();
+    accessMedia();
+    // initCall();
   };
 
   const handleClose = () => {
@@ -180,12 +187,17 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
   };
   
   const stopMic = () => {
+    console.log('local stream is => ' , localStream);
     if (localStream) {
       const audioTracks = localStream.getAudioTracks();
       audioTracks.forEach(track => track.stop());
     }
   };
 
+  const accessMedia = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    setLocalStream(stream);
+  };
 
   const toggleMicMute = () => {
     if (localStream) {
