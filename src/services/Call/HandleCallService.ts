@@ -1,4 +1,4 @@
-import { collection , doc, getDoc, getDocs, getFirestore, limit, query, where, } from 'firebase/firestore';
+import { DocumentChange, DocumentData, collection , doc, getDoc, getDocs, getFirestore, limit, query, where, updateDoc} from 'firebase/firestore';
 import app from 'src/config/FirebaseConfig';
 import AuthService from '../Auth/AuthService';
 import { CallDTO } from 'src/types/dto';
@@ -74,6 +74,15 @@ export default {
       success: true,
       calls: out
     };
+
+  },
+
+  rejectCall : async (docRef: DocumentChange<DocumentData, DocumentData>) => {
+    await updateDoc(docRef.doc.ref , {
+      rejected: true
+    });
+
+    return true;
 
   }
 

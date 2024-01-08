@@ -79,8 +79,8 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
         console.log('Sending offer signal:', data);
         const docRef = doc(db, 'global_call', calleeId , 'calls', callId);
         const docRef2 = doc(db, 'global_call', user?.uid+'' , 'calls', callId);
-        await setDoc(docRef, { offer: JSON.stringify(data), timestamp: new Date() , caller:  user?.uid , callee : calleeId , answered : false});
-        await setDoc(docRef2, { offer: JSON.stringify(data), timestamp: new Date() , caller:  user?.uid , callee : calleeId , answered : false});
+        await setDoc(docRef, { offer: JSON.stringify(data), timestamp: new Date() , caller:  user?.uid , callee : calleeId , answered : false , rejected: false});
+        await setDoc(docRef2, { offer: JSON.stringify(data), timestamp: new Date() , caller:  user?.uid , callee : calleeId , answered : false , rejected: false});
       });
   
       peerRef.current.on('stream', (stream) => {
@@ -150,6 +150,11 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
       onSnapshot(doc(db, 'global_call', calleeId , 'calls', callId), (snapshot) => {
         const data = snapshot.data();
         console.log('data is => ' , data);
+        
+        if(data && data.rejected){
+          handleClose();
+        }
+
         if (data && data.answer && peerRef.current && !peerRef.current.connected) {
           const remoteAnswer = JSON.parse(data.answer);
           if (remoteAnswer.type === 'answer') {
