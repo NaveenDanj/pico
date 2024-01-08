@@ -11,6 +11,9 @@ import MicIcon from '@mui/icons-material/Mic';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import CallEndIcon from '@mui/icons-material/CallEnd';
+import MicOffIcon from '@mui/icons-material/MicOff';
+  
+
 import { useEffect, useRef, useState } from 'react';
 import { addDoc, doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import SimplePeer from 'simple-peer';
@@ -48,6 +51,15 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
   const [callStatus , setCallStatus] = useState('Calling...');
   const user = useSelector((state: RootState) => state.user.userData);
   const [localStream , setLocalStream] = useState<MediaStream>();
+  const [isMicMuted, setIsMicMuted] = useState(false);
+
+
+
+  useEffect(() => {
+    console.log('latest call => ' , localStream);
+    initCall();
+  }, [localStream]);
+
 
 
   const initCall = async () => {
@@ -58,12 +70,9 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
 
     try {
       const callId: string = uuidv4();
-  
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-      console.log('stream obtained => ' , stream);
-      setLocalStream(stream);
+      console.log('stream obtained => ' , localStream);
       
-      const peer = new SimplePeer({ initiator: true, trickle: false , stream: stream});
+      const peer = new SimplePeer({ initiator: true, trickle: false , stream: localStream});
       peerRef.current = peer;
   
       peerRef.current.on('signal', async (data) => {
@@ -134,6 +143,7 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
       });
   
       peerRef.current.on('error', (err) => {
+        handleClose();
         console.error('Peer Error:', err);
       });
   
@@ -143,31 +153,60 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
         if (data && data.answer && peerRef.current && !peerRef.current.connected) {
           const remoteAnswer = JSON.parse(data.answer);
           if (remoteAnswer.type === 'answer') {
-            peerRef.current.signal(remoteAnswer);
+            if(!peerRef.current.destroyed) peerRef.current.signal(remoteAnswer);
           }
         }
       });
       
     } catch (error) {
       console.error('Error during initCall:', error);
+      handleClose();
     }
   };
 
   const handleClickOpen = () => {
     setOpen(true);
-    initCall();
+    accessMedia();
+    // initCall();
   };
 
   const handleClose = () => {
+
+    if(peerRef.current){
+      peerRef.current.destroy();
+    }else{
+      peerRef.current = null;
+    }
+
+    stopMic();
     setOpen(false);
     setPeerSetted(false);
+    setStartTime(null);
+    setCallStatus('Calling...');
+
   };
-
-
+  
   const stopMic = () => {
+    console.log('local stream is => ' , localStream);
     if (localStream) {
       const audioTracks = localStream.getAudioTracks();
       audioTracks.forEach(track => track.stop());
+    }
+  };
+
+  const accessMedia = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    setLocalStream(stream);
+  };
+
+  const toggleMicMute = () => {
+    if (localStream) {
+      const audioTracks = localStream.getAudioTracks();
+      console.log(audioTracks);
+      audioTracks.forEach(track => {
+        track.enabled = !track.enabled;
+        setIsMicMuted(!track.enabled); // Update state based on the enabled state
+      });
     }
   };
 
@@ -255,15 +294,19 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
 
         <div className='tw-bg-[#202020] tw-h-[70px] tw-items-center tw-flex tw-justify-center'>
           <div className='tw-flex  tw-gap-4'>
-            <button style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
-              <MicIcon sx={{ fontSize: 18 }} />
+            <button onClick={toggleMicMute} style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
+              {isMicMuted ? (
+                <MicOffIcon sx={{ fontSize: 18, color: '#D5382F' }} />
+              ) : (
+                <MicIcon sx={{ fontSize: 18 }} />
+              )}
             </button>
 
             <button style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
               <VideocamIcon sx={{ fontSize: 18 }} />
             </button>
 
-            <button style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#D5382F] tw-flex tw-justify-center tw-items-center'>
+            <button onClick={handleClose} style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#D5382F] tw-flex tw-justify-center tw-items-center'>
               <CallEndIcon className='tw-text-white' sx={{ fontSize: 18 }} />
             </button>
 
