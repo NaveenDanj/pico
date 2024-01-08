@@ -10,6 +10,7 @@ import MicIcon from '@mui/icons-material/Mic';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import CallEndIcon from '@mui/icons-material/CallEnd';
+import MicOffIcon from '@mui/icons-material/MicOff';
 import {useEffect, useState } from 'react';
 
 import { collection, onSnapshot , getFirestore, query , where, orderBy, QueryDocumentSnapshot, DocumentData, doc, updateDoc, addDoc, DocumentChange } from 'firebase/firestore';
@@ -18,8 +19,8 @@ import SimplePeer from 'simple-peer';
 import { useSelector } from 'react-redux';
 import { RootState } from 'src/store/store';
 
-const db = getFirestore(app);
 
+const db = getFirestore(app);
 
 
 const Transition = React.forwardRef(function Transition(
@@ -42,12 +43,9 @@ export default function IncomingCallDialog() {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [callStatus , setCallStatus] = useState('Calling...');
   const [latestCall , setLatestCall] = useState<DocumentChange<DocumentData, DocumentData>>();
+  const [localStream , setLocalStream] = useState<MediaStream>();
+  const [isMicMuted, setIsMicMuted] = useState(false);
 
-
-  const handleClose = () => {
-    setOpen(false);
-    setPeerSetted(false);
-  };
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -77,12 +75,11 @@ export default function IncomingCallDialog() {
       clearInterval(intervalId);
     };
 
-  });
+  } , [startTime]);
 
   useEffect(() => {
     let isMounted = true;
     if(user){
-      console.log('callee is => ' , user.uid);
       const q = query(
         collection(db, 'global_call', user.uid, 'calls' ),
         where('timestamp', '>', new Date()),
@@ -93,6 +90,7 @@ export default function IncomingCallDialog() {
         snapshot.docChanges().forEach(change => {
           if (change.type === 'added' && !peerSetted && !callAnswered && !hasAnsweredCall && isMounted) {
             const data = change.doc.data();
+            console.log('new call found! => ' , data);
             if(data.callee == user.uid){
               setLatestCall(change);
               setOpen(true);
@@ -110,75 +108,134 @@ export default function IncomingCallDialog() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   } , [user, peerSetted, callAnswered, hasAnsweredCall]);
 
-
-  const answerCall = async (callId: string, answer: QueryDocumentSnapshot<DocumentData, DocumentData>) => {
-
-
-    if (hasAnsweredCall) {
+  const answerCall = async (callId: string, answer: QueryDocumentSnapshot<DocumentData, DocumentData> , localStream: MediaStream | undefined) => {
+    console.log('called' , localStream);
+    if (hasAnsweredCall && !localStream) {
       return;
     }
 
-    const localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-    console.log('Local stream obtained:', localStream);
-    const peer = new SimplePeer({ initiator: false, trickle: false , stream : localStream});
-    peerRef.current = peer;
+    console.log('no issues!');
 
-    const offerData = JSON.parse(answer.data().offer);
-    peerRef.current.signal(offerData);
-  
-    peerRef.current.on('signal', async (ans) => {
-      console.log('Sending answer signal:', ans);
-      const docRef = doc(db, 'global_call', user?.uid+'', 'calls', callId);
-      await updateDoc(docRef, { answer: JSON.stringify(ans) });
-    });
-  
-  
-    peerRef.current.on('stream', (stream) => {
-      console.log('Remote stream received:', stream);
-      if (audioRef.current) {
-        audioRef.current.srcObject = stream;
-        audioRef.current.play();
-      }
-    });
-  
-    peerRef.current.on('connect', () => {
-      console.log('Peer connected!');
-      setStartTime(Date.now());
-      peerRef.current?.send('hello world');
-    });
-  
-    peerRef.current.on('close', () => {
-      console.log('Peer connection closed');
-      setOpen(false);
-    });
-  
-    peerRef.current.on('error', (err) => {
-      console.error('Peer Error:', err);
-    });
-  
-    peerRef.current.on('data', data => {
-      console.log('Data received:', data);
-    });
-  
-    peerRef.current.on('iceCandidate', async (candidate) => {
-      console.log('Sending iceCandidate:', candidate);
-      const candidatesCollection = collection(db, 'global_call', user?.uid+'', 'calls', callId, 'offerCandidates');
-      await addDoc(candidatesCollection, candidate);
-    });
+    try{
 
-    setHasAnsweredCall(true);
+      const peer = new SimplePeer({ initiator: false, trickle: false , stream : localStream});
+      peerRef.current = peer;
+  
 
+      const offerData = JSON.parse(answer.data().offer);
+      peerRef.current.signal(offerData);
+    
+      peerRef.current.on('signal', async (ans) => {
+        console.log('Sending answer signal:', ans);
+        const docRef = doc(db, 'global_call', user?.uid+'', 'calls', callId);
+        await updateDoc(docRef, { answer: JSON.stringify(ans) });
+      });
+    
+    
+      peerRef.current.on('stream', (stream) => {
+        console.log('Remote stream received:', stream);
+        if (audioRef.current) {
+          audioRef.current.srcObject = stream;
+          audioRef.current.play();
+        }
+      });
+    
+      peerRef.current.on('connect', () => {
+        console.log('Peer connected!');
+        setStartTime(Date.now());
+        peerRef.current?.send('hello world');
+      });
+    
+      peerRef.current.on('close', () => {
+        console.log('Peer connection closed');
+        handleClose();
+      });
+    
+      peerRef.current.on('error', (err) => {
+        console.error('Peer Error:', err);
+        handleClose();
+      });
+    
+      peerRef.current.on('data', data => {
+        console.log('Data received:', data);
+      });
+    
+      peerRef.current.on('iceCandidate', async (candidate) => {
+        console.log('Sending iceCandidate:', candidate);
+        const candidatesCollection = collection(db, 'global_call', user?.uid+'', 'calls', callId, 'offerCandidates');
+        await addDoc(candidatesCollection, candidate);
+      });
+  
+      setHasAnsweredCall(true);
+    }catch(err){
+      console.log('Error while receiving call');
+      handleClose();
+    }
+
+
+  };
+
+  useEffect(() => {
+    console.log('latest call => ' , localStream , latestCall?.doc.data());
+    if(latestCall && latestCall.doc) answerCall(latestCall?.doc.id , latestCall.doc , localStream);
+  }, [localStream]);
+
+
+  const accessMedia = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    setLocalStream(stream);
   };
 
   const handleAnswerCall = async () => {
     setPeerSetted(true);
     if(latestCall){
-      answerCall(latestCall.doc.id, latestCall.doc);
+      accessMedia();
       setCallAnswered(true);
       setHasAnsweredCall(true);
     } 
   };
 
+  const handleClose = () => {
+
+    stopMic();
+
+    if(peerRef.current){
+      peerRef.current.destroy();
+    }else{
+      peerRef.current = null;
+    }
+
+    setOpen(false);
+    setPeerSetted(false);
+    setStartTime(null);
+    setCallStatus('Calling...');
+    setHasAnsweredCall(false);
+    setCallAnswered(false);
+
+  };
+  
+  const stopMic = () => {
+    if (localStream) {
+      const audioTracks = localStream.getAudioTracks();
+  
+      audioTracks.forEach(track => {
+        console.log('Stopping track:', track);
+        track.stop();
+      });
+  
+    }
+  };
+
+  const toggleMicMute = () => {
+    if (localStream) {
+      const audioTracks = localStream.getAudioTracks();
+      console.log(audioTracks);
+      audioTracks.forEach(track => {
+        track.enabled = !track.enabled;
+        setIsMicMuted(!track.enabled); // Update state based on the enabled state
+      });
+    }
+  };
 
   return (
     <>
@@ -256,8 +313,15 @@ export default function IncomingCallDialog() {
           {hasAnsweredCall && (
             <div className='tw-flex  tw-gap-4'>
                           
-              <button style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
-                <MicIcon sx={{ fontSize : 18 }} />
+              <button onClick={toggleMicMute} style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
+
+                {isMicMuted ? (
+                  <MicOffIcon sx={{ fontSize: 18, color: '#D5382F' }} />
+                ) : (
+                  <MicIcon sx={{ fontSize: 18 }} />
+                )}
+
+                {/* <MicIcon sx={{ fontSize : 18 }} /> */}
               </button>
 
               <button style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
@@ -284,3 +348,4 @@ export default function IncomingCallDialog() {
     </>
   );
 }
+

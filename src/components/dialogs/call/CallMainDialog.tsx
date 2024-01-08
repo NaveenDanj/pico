@@ -11,6 +11,9 @@ import MicIcon from '@mui/icons-material/Mic';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import CallEndIcon from '@mui/icons-material/CallEnd';
+import MicOffIcon from '@mui/icons-material/MicOff';
+  
+
 import { useEffect, useRef, useState } from 'react';
 import { addDoc, doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import SimplePeer from 'simple-peer';
@@ -48,7 +51,7 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
   const [callStatus , setCallStatus] = useState('Calling...');
   const user = useSelector((state: RootState) => state.user.userData);
   const [localStream , setLocalStream] = useState<MediaStream>();
-
+  const [isMicMuted, setIsMicMuted] = useState(false);
 
   const initCall = async () => {
 
@@ -135,6 +138,7 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
   
       peerRef.current.on('error', (err) => {
         console.error('Peer Error:', err);
+        handleClose();
       });
   
       onSnapshot(doc(db, 'global_call', calleeId , 'calls', callId), (snapshot) => {
@@ -150,6 +154,7 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
       
     } catch (error) {
       console.error('Error during initCall:', error);
+      handleClose();
     }
   };
 
@@ -159,15 +164,37 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
   };
 
   const handleClose = () => {
+
+    if(peerRef.current){
+      peerRef.current.destroy();
+    }else{
+      peerRef.current = null;
+    }
+
+    stopMic();
     setOpen(false);
     setPeerSetted(false);
+    setStartTime(null);
+    setCallStatus('Calling...');
+
   };
-
-
+  
   const stopMic = () => {
     if (localStream) {
       const audioTracks = localStream.getAudioTracks();
       audioTracks.forEach(track => track.stop());
+    }
+  };
+
+
+  const toggleMicMute = () => {
+    if (localStream) {
+      const audioTracks = localStream.getAudioTracks();
+      console.log(audioTracks);
+      audioTracks.forEach(track => {
+        track.enabled = !track.enabled;
+        setIsMicMuted(!track.enabled); // Update state based on the enabled state
+      });
     }
   };
 
@@ -255,15 +282,19 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
 
         <div className='tw-bg-[#202020] tw-h-[70px] tw-items-center tw-flex tw-justify-center'>
           <div className='tw-flex  tw-gap-4'>
-            <button style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
-              <MicIcon sx={{ fontSize: 18 }} />
+            <button onClick={toggleMicMute} style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
+              {isMicMuted ? (
+                <MicOffIcon sx={{ fontSize: 18, color: '#D5382F' }} />
+              ) : (
+                <MicIcon sx={{ fontSize: 18 }} />
+              )}
             </button>
 
             <button style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
               <VideocamIcon sx={{ fontSize: 18 }} />
             </button>
 
-            <button style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#D5382F] tw-flex tw-justify-center tw-items-center'>
+            <button onClick={handleClose} style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#D5382F] tw-flex tw-justify-center tw-items-center'>
               <CallEndIcon className='tw-text-white' sx={{ fontSize: 18 }} />
             </button>
 
