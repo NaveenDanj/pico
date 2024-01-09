@@ -12,7 +12,7 @@ import MicIcon from '@mui/icons-material/Mic';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import MicOffIcon from '@mui/icons-material/MicOff';
-  
+import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 
 import { useEffect, useRef, useState } from 'react';
 import { addDoc, doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
@@ -45,7 +45,7 @@ interface CallMainDTO {
 export default function CallMainDialog({ calleeId , calleeName , calleeDp }:CallMainDTO) {
 
   const [open, setOpen] = useState(false);
-  const audioRef: React.MutableRefObject<HTMLAudioElement | null> = useRef(null);
+  const audioRef: React.MutableRefObject<HTMLVideoElement | null> = useRef(null);
   const peerRef = useRef<SimplePeer.Instance | null>(null);
   const [peerSetted , setPeerSetted] = useState(false);
   const [startTime, setStartTime] = useState<number | null>(null);
@@ -54,6 +54,7 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
   const user = useSelector((state: RootState) => state.user.userData);
   const [localStream , setLocalStream] = useState<MediaStream>();
   const [isMicMuted, setIsMicMuted] = useState(false);
+  const [isVideoPaused, setIsVideoPaused] = useState(false);
   const [callId , setCallId] = useState('');
 
 
@@ -69,8 +70,10 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
     }, 1000);
 
     const updateCallDuration = () => {
-      if(localStorage.getItem('currentCallId')){
+      console.log('status => ' , open , callStatus);
+      if(localStorage.getItem('currentCallId') && open == true && callStatus == 'Calling...'){
         setInitTime(initTime + 1);
+        console.log('time : ' , initTime);
       }
     };
 
@@ -78,7 +81,7 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
       clearInterval(rejectionIntervalId);
     };
 
-  } , [initTime]);
+  } , [open, callStatus , initTime]);
 
   useEffect(() => {
     if(localStorage.getItem('currentCallId')){
@@ -228,25 +231,35 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
   };
   
   const stopMic = () => {
-    console.log('local stream is => ' , localStream);
     if (localStream) {
       const audioTracks = localStream.getAudioTracks();
+      const videoTracks = localStream.getVideoTracks();
       audioTracks.forEach(track => track.stop());
+      videoTracks.forEach(track => track.stop());
     }
   };
 
   const accessMedia = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
     setLocalStream(stream);
   };
 
   const toggleMicMute = () => {
     if (localStream) {
       const audioTracks = localStream.getAudioTracks();
-      console.log(audioTracks);
       audioTracks.forEach(track => {
         track.enabled = !track.enabled;
-        setIsMicMuted(!track.enabled); // Update state based on the enabled state
+        setIsMicMuted(!track.enabled);
+      });
+    }
+  };
+
+  const toggleVideoPuase = () => {
+    if (localStream) {
+      const videoTracks = localStream.getVideoTracks();
+      videoTracks.forEach(track => {
+        track.enabled = !track.enabled;
+        setIsVideoPaused(!track.enabled); 
       });
     }
   };
@@ -298,7 +311,7 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
         TransitionComponent={Transition}
       >
         <div className='tw-bg-[#272727]' >
-          <audio ref={audioRef} autoPlay />
+          {/* <audio ref={audioRef} autoPlay /> */}
           <Toolbar>
 
             <IconButton
@@ -317,45 +330,69 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
           </Toolbar>
         </div>
 
-        <div className='tw-w-full tw-h-full tw-flex tw-justify-center tw-items-center' style={{ backgroundImage: 'url(./pattern.png)' }}>
-          <div className=' tw-justify-center'>
-            <div className='tw-flex tw-justify-center'>
-              <Avatar src={calleeDp} sx={{ width: 150, height: 150 }} />
-            </div>
+        <div className='tw-w-full tw-h-full tw-flex tw-flex-col '>
+          
+          {callStatus == 'Calling...' && (
+            <div className='tw-w-full tw-h-full tw-flex tw-justify-center tw-items-center' style={{ backgroundImage: 'url(./pattern.png)' }}>
+              <div className='tw-justify-center tw-flex-grow'>
 
-            <div className='tw-mt-4 tw-flex tw-justify-center'>
-              <label className='tw-text-xl'>{calleeName}</label>
-            </div>
+                <div className='tw-flex tw-justify-center'>
+                  <Avatar src={calleeDp} sx={{ width: 150, height: 150 }} />
+                </div>
 
-            <div className='tw-mt-2 tw-flex  tw-justify-center'>
-              <label className='tw-text-sm tw-font-extralight'>{callStatus}</label>
+                <div className='tw-mt-4 tw-flex tw-justify-center'>
+                  <label className='tw-text-xl'>{calleeName}</label>
+                </div>
+
+                <div className='tw-mt-2 tw-flex  tw-justify-center'>
+                  <label className='tw-text-sm tw-font-extralight'>{callStatus}</label>
+                </div>
+              
+
+              </div>
+            </div>
+          )}
+
+          <div className={`tw-w-full tw-h-full tw-flex tw-flex-grow tw-justify-center tw-items-center ${callStatus === 'Calling...' ? 'tw-hidden' : ''}`} style={{ backgroundImage: 'url(./pattern.png)' }}>
+            <div className='tw-flex tw-justify-center tw-p-2'>
+              <video className='tw-rounded-md' style={{ height: '86vh' }} autoPlay ref={audioRef} />
             </div>
           </div>
-        </div>
+          
 
-        <div className='tw-bg-[#202020] tw-h-[70px] tw-items-center tw-flex tw-justify-center'>
-          <div className='tw-flex  tw-gap-4'>
-            <button onClick={toggleMicMute} style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
-              {isMicMuted ? (
-                <MicOffIcon sx={{ fontSize: 18, color: '#D5382F' }} />
-              ) : (
-                <MicIcon sx={{ fontSize: 18 }} />
-              )}
-            </button>
+          <div className='tw-bg-[#202020] tw-p-2 tw-items-center tw-flex tw-justify-center'>
+            <div className='tw-flex  tw-gap-4'>
+              <button onClick={toggleMicMute} style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
+                {isMicMuted ? (
+                  <MicOffIcon sx={{ fontSize: 18, color: '#D5382F' }} />
+                ) : (
+                  <MicIcon sx={{ fontSize: 18 }} />
+                )}
+              </button>
 
-            <button style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
-              <VideocamIcon sx={{ fontSize: 18 }} />
-            </button>
+              <button onClick={toggleVideoPuase} style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
+                
+                {isVideoPaused ? (
+                  <VideocamOffIcon sx={{ fontSize: 18, color: '#D5382F' }} />
+                ) : (
+                  <VideocamIcon sx={{ fontSize: 18 }} />
+                )}
 
-            <button onClick={handleClose} style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#D5382F] tw-flex tw-justify-center tw-items-center'>
-              <CallEndIcon className='tw-text-white' sx={{ fontSize: 18 }} />
-            </button>
+              </button>
 
-            {/* <button style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
-              <MoreHorizIcon sx={{ fontSize: 18 }} />
-            </button> */}
+              <button onClick={handleClose} style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#D5382F] tw-flex tw-justify-center tw-items-center'>
+                <CallEndIcon className='tw-text-white' sx={{ fontSize: 18 }} />
+              </button>
+
+              {/* <button style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
+                <MoreHorizIcon sx={{ fontSize: 18 }} />
+              </button> */}
+            </div>
           </div>
+
         </div>
+
+
       </Dialog>
     </>
   );
