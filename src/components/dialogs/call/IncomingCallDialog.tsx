@@ -91,12 +91,26 @@ export default function IncomingCallDialog() {
         snapshot.docChanges().forEach(change => {
           if (change.type === 'added' && !peerSetted && !callAnswered && !hasAnsweredCall && isMounted) {
             const data = change.doc.data();
-            console.log('new call found! => ' , data);
+            console.log('new call found! => ' , data , change.doc.ref);
             if(data.callee == user.uid){
               setLatestCall(change);
               setOpen(true);
+              
+              onSnapshot(change.doc.ref , doc => {
+                
+                if(doc.exists()){
+                  const _docData = doc.data();
+                  if(_docData.rejected == true){
+                    handleClose();
+                  }
+                  
+                }
+
+              });
+
             }
           }
+
         });
       });
     }
