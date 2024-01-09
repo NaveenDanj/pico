@@ -22,6 +22,7 @@ import { collection , getFirestore, } from 'firebase/firestore';
 import app from 'src/config/FirebaseConfig';
 import { useSelector } from 'react-redux';
 import { RootState } from 'src/store/store';
+import HandleCallService from 'src/services/Call/HandleCallService';
 const db = getFirestore(app);
 
 
@@ -48,11 +49,12 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
   const peerRef = useRef<SimplePeer.Instance | null>(null);
   const [peerSetted , setPeerSetted] = useState(false);
   const [startTime, setStartTime] = useState<number | null>(null);
+  const [initTime , setInitTime] = useState<number>(0);
   const [callStatus , setCallStatus] = useState('Calling...');
   const user = useSelector((state: RootState) => state.user.userData);
   const [localStream , setLocalStream] = useState<MediaStream>();
   const [isMicMuted, setIsMicMuted] = useState(false);
-
+  const [callId , setCallId] = useState('');
 
 
   useEffect(() => {
@@ -60,6 +62,32 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
     initCall();
   }, [localStream]);
 
+
+  useEffect(() => {
+    const rejectionIntervalId = setInterval(() => {
+      updateCallDuration();
+    }, 1000);
+
+    const updateCallDuration = () => {
+      if(localStorage.getItem('currentCallId')){
+        setInitTime(initTime + 1);
+      }
+    };
+
+    return () => {
+      clearInterval(rejectionIntervalId);
+    };
+
+  } , [initTime]);
+
+  useEffect(() => {
+    if(localStorage.getItem('currentCallId')){
+      console.log('time : ' , initTime);
+      if(initTime > 30) {
+        handleClose();
+      }
+    }
+  }, [initTime]);
 
 
   const initCall = async () => {
@@ -69,8 +97,9 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
     }
 
     try {
-      const callId: string = uuidv4();
-      console.log('stream obtained => ' , localStream);
+      setInitTime(0);
+      setCallId( uuidv4());
+      localStorage.setItem('currentCallId' , callId);
       
       const peer = new SimplePeer({ initiator: true, trickle: false , stream: localStream});
       peerRef.current = peer;
@@ -79,8 +108,8 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
         console.log('Sending offer signal:', data);
         const docRef = doc(db, 'global_call', calleeId , 'calls', callId);
         const docRef2 = doc(db, 'global_call', user?.uid+'' , 'calls', callId);
-        await setDoc(docRef, { offer: JSON.stringify(data), timestamp: new Date() , caller:  user?.uid , callee : calleeId , answered : false});
-        await setDoc(docRef2, { offer: JSON.stringify(data), timestamp: new Date() , caller:  user?.uid , callee : calleeId , answered : false});
+        await setDoc(docRef, { offer: JSON.stringify(data), timestamp: new Date() , caller:  user?.uid , callee : calleeId , answered : false , rejected: false});
+        await setDoc(docRef2, { offer: JSON.stringify(data), timestamp: new Date() , caller:  user?.uid , callee : calleeId , answered : false , rejected: false});
       });
   
       peerRef.current.on('stream', (stream) => {
@@ -150,6 +179,11 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
       onSnapshot(doc(db, 'global_call', calleeId , 'calls', callId), (snapshot) => {
         const data = snapshot.data();
         console.log('data is => ' , data);
+        
+        if(data && data.rejected){
+          handleClose();
+        }
+
         if (data && data.answer && peerRef.current && !peerRef.current.connected) {
           const remoteAnswer = JSON.parse(data.answer);
           if (remoteAnswer.type === 'answer') {
@@ -170,7 +204,14 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
     // initCall();
   };
 
-  const handleClose = () => {
+  const handleClose = async () => {
+
+    if(callStatus == 'Calling...'){
+      console.log('call id is => ' , callId);
+      const _doc = doc(db , 'global_call', calleeId , 'calls', localStorage.getItem('currentCallId')+'');
+      await HandleCallService._rejectCall(_doc);
+    }
+
 
     if(peerRef.current){
       peerRef.current.destroy();
@@ -183,6 +224,7 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
     setPeerSetted(false);
     setStartTime(null);
     setCallStatus('Calling...');
+    setInitTime(0);
 
   };
   

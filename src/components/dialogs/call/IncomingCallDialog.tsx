@@ -18,6 +18,7 @@ import app from 'src/config/FirebaseConfig';
 import SimplePeer from 'simple-peer';
 import { useSelector } from 'react-redux';
 import { RootState } from 'src/store/store';
+import HandleCallService from 'src/services/Call/HandleCallService';
 
 
 const db = getFirestore(app);
@@ -90,12 +91,26 @@ export default function IncomingCallDialog() {
         snapshot.docChanges().forEach(change => {
           if (change.type === 'added' && !peerSetted && !callAnswered && !hasAnsweredCall && isMounted) {
             const data = change.doc.data();
-            console.log('new call found! => ' , data);
+            console.log('new call found! => ' , data , change.doc.ref);
             if(data.callee == user.uid){
               setLatestCall(change);
               setOpen(true);
+              
+              onSnapshot(change.doc.ref , doc => {
+                
+                if(doc.exists()){
+                  const _docData = doc.data();
+                  if(_docData.rejected == true){
+                    handleClose();
+                  }
+                  
+                }
+
+              });
+
             }
           }
+
         });
       });
     }
@@ -197,6 +212,11 @@ export default function IncomingCallDialog() {
 
   const handleClose = () => {
 
+    if(!hasAnsweredCall){
+      handleRejectCall();
+    }
+
+
     stopMic();
 
     if(peerRef.current){
@@ -237,6 +257,21 @@ export default function IncomingCallDialog() {
     }
   };
 
+  const handleRejectCall = async () => {
+
+    if(!latestCall) return;
+    await HandleCallService.rejectCall(latestCall);
+
+    setOpen(false);
+    setPeerSetted(false);
+    setStartTime(null);
+    setCallStatus('Calling...');
+    setHasAnsweredCall(false);
+    setCallAnswered(false);
+  };
+
+
+
   return (
     <>
       <Dialog
@@ -261,7 +296,7 @@ export default function IncomingCallDialog() {
             </IconButton>
 
             <label className='tw-text-lg tw-ml-3'>
-                            Pico Call
+              Pico Call
             </label>
 
           </Toolbar>
@@ -286,7 +321,7 @@ export default function IncomingCallDialog() {
             {!hasAnsweredCall && (
               <div className='tw-flex tw-gap-6 tw-mt-10'>
                           
-                <button style={{ width : 60 , height: 40 , borderRadius: 20 }} className='tw-bg-[#D53A2C] tw-flex tw-justify-center tw-my-auto tw-items-center'>
+                <button onClick={handleRejectCall} style={{ width : 60 , height: 40 , borderRadius: 20 }} className='tw-bg-[#D53A2C] tw-flex tw-justify-center tw-my-auto tw-items-center'>
                   <CallEndIcon className='tw-text-white tw-my-auto' sx={{ fontSize : 18 }} />
                 </button>
 
