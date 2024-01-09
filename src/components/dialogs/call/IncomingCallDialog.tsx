@@ -11,6 +11,9 @@ import MicIcon from '@mui/icons-material/Mic';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import MicOffIcon from '@mui/icons-material/MicOff';
+import VideocamOffIcon from '@mui/icons-material/VideocamOff';
+
+
 import {useEffect, useState } from 'react';
 
 import { collection, onSnapshot , getFirestore, query , where, orderBy, QueryDocumentSnapshot, DocumentData, doc, updateDoc, addDoc, DocumentChange } from 'firebase/firestore';
@@ -35,7 +38,7 @@ const Transition = React.forwardRef(function Transition(
 
 export default function IncomingCallDialog() {
   const [open, setOpen] = useState(false);
-  const audioRef: React.RefObject<HTMLAudioElement> | undefined = React.useRef() as React.RefObject<HTMLAudioElement>;
+  const audioRef: React.RefObject<HTMLVideoElement> | undefined = React.useRef() as React.RefObject<HTMLVideoElement>;
   const peerRef = React.useRef<SimplePeer.Instance | null>(null);
   const user = useSelector((state: RootState) => state.user.userData);
   const [peerSetted, setPeerSetted] = useState(false);
@@ -46,6 +49,7 @@ export default function IncomingCallDialog() {
   const [latestCall , setLatestCall] = useState<DocumentChange<DocumentData, DocumentData>>();
   const [localStream , setLocalStream] = useState<MediaStream>();
   const [isMicMuted, setIsMicMuted] = useState(false);
+  const [isVideoPaused, setIsVideoPaused] = useState(false);
 
 
   useEffect(() => {
@@ -129,8 +133,6 @@ export default function IncomingCallDialog() {
       return;
     }
 
-    console.log('no issues!');
-
     try{
 
       const peer = new SimplePeer({ initiator: false, trickle: false , stream : localStream});
@@ -197,7 +199,7 @@ export default function IncomingCallDialog() {
 
 
   const accessMedia = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
     setLocalStream(stream);
   };
 
@@ -237,12 +239,9 @@ export default function IncomingCallDialog() {
   const stopMic = () => {
     if (localStream) {
       const audioTracks = localStream.getAudioTracks();
-  
-      audioTracks.forEach(track => {
-        console.log('Stopping track:', track);
-        track.stop();
-      });
-  
+      const videoTracks = localStream.getVideoTracks();
+      audioTracks.forEach(track => track.stop());
+      videoTracks.forEach(track => track.stop());
     }
   };
 
@@ -253,6 +252,16 @@ export default function IncomingCallDialog() {
       audioTracks.forEach(track => {
         track.enabled = !track.enabled;
         setIsMicMuted(!track.enabled); // Update state based on the enabled state
+      });
+    }
+  };
+
+  const toggleVideoPuase = () => {
+    if (localStream) {
+      const videoTracks = localStream.getVideoTracks();
+      videoTracks.forEach(track => {
+        track.enabled = !track.enabled;
+        setIsVideoPaused(!track.enabled); 
       });
     }
   };
@@ -303,80 +312,86 @@ export default function IncomingCallDialog() {
 
         </div>
 
-        <div className='tw-w-full tw-h-full tw-flex tw-justify-center tw-items-center' style={{ backgroundImage: 'url(./pattern.png)' }}>
-                    
-          <div className=' tw-justify-center'>
-            <div className='tw-flex tw-justify-center'>
-              <Avatar src='https://avatars.githubusercontent.com/u/48654030?v=4' sx={{ width : 150 , height : 150 }} />
-            </div>
+        <div className='tw-w-full tw-h-full tw-flex tw-flex-col'>
 
-            <div className='tw-mt-4'>
-              <center><label className='tw-text-xl'>Naveen Dhananjaya</label></center>
-            </div>
+          {callStatus == 'Calling...' && (
+            <div className='tw-w-full tw-h-full tw-flex tw-flex-grow tw-justify-center tw-items-center' style={{ backgroundImage: 'url(./pattern.png)' }}>
+                        
+              <div className=' tw-justify-center'>
+                <div className='tw-flex tw-justify-center'>
+                  <Avatar src='https://avatars.githubusercontent.com/u/48654030?v=4' sx={{ width : 150 , height : 150 }} />
+                </div>
 
-            <div className='tw-mt-2 tw-flex  tw-justify-center'>
-              <label className='tw-text-sm tw-font-extralight'>{callStatus}</label>
-            </div>
+                <div className='tw-mt-4'>
+                  <center><label className='tw-text-xl'>Naveen Dhananjaya</label></center>
+                </div>
 
-            {!hasAnsweredCall && (
-              <div className='tw-flex tw-gap-6 tw-mt-10'>
-                          
-                <button onClick={handleRejectCall} style={{ width : 60 , height: 40 , borderRadius: 20 }} className='tw-bg-[#D53A2C] tw-flex tw-justify-center tw-my-auto tw-items-center'>
-                  <CallEndIcon className='tw-text-white tw-my-auto' sx={{ fontSize : 18 }} />
-                </button>
+                <div className='tw-mt-2 tw-flex  tw-justify-center'>
+                  <label className='tw-text-sm tw-font-extralight'>{callStatus}</label>
+                </div>
 
-                <button onClick={() => handleAnswerCall()} style={{ borderRadius: 30 }} className='tw-bg-[#24CA63] tw-flex tw-justify-center tw-my-auto tw-items-center tw-px-6'>
-                  <CallEndIcon className='tw-text-white tw-my-auto' sx={{ fontSize : 18 }} />
-                  <label className='tw-ml-4 tw-text-sm tw-my-auto'>Accept</label>
-                </button>
+                {!hasAnsweredCall && (
+                  <div className='tw-flex tw-gap-6 tw-mt-10'>
+                              
+                    <button onClick={handleRejectCall} style={{ width : 60 , height: 40 , borderRadius: 20 }} className='tw-bg-[#D53A2C] tw-flex tw-justify-center tw-my-auto tw-items-center'>
+                      <CallEndIcon className='tw-text-white tw-my-auto' sx={{ fontSize : 18 }} />
+                    </button>
 
-                {/* <button style={{ width : 60 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-my-auto tw-items-center'>
-                  <MoreHorizIcon sx={{ fontSize : 18 }} />
-                </button> */}
+                    <button onClick={() => handleAnswerCall()} style={{ borderRadius: 30 }} className='tw-bg-[#24CA63] tw-flex tw-justify-center tw-my-auto tw-items-center tw-px-6'>
+                      <CallEndIcon className='tw-text-white tw-my-auto' sx={{ fontSize : 18 }} />
+                      <label className='tw-ml-4 tw-text-sm tw-my-auto'>Accept</label>
+                    </button>
 
-                          
-              </div>
-            )}
-
-
-          </div>
-
-        </div>
-
-        <div className='tw-bg-[#202020] tw-h-[75px] tw-items-center tw-flex tw-justify-center'>
-
-          {hasAnsweredCall && (
-            <div className='tw-flex  tw-gap-4'>
-                          
-              <button onClick={toggleMicMute} style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
-
-                {isMicMuted ? (
-                  <MicOffIcon sx={{ fontSize: 18, color: '#D5382F' }} />
-                ) : (
-                  <MicIcon sx={{ fontSize: 18 }} />
+                  </div>
                 )}
 
-                {/* <MicIcon sx={{ fontSize : 18 }} /> */}
-              </button>
-
-              <button style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
-                <VideocamIcon sx={{ fontSize : 18 }} />
-              </button>
-
-              <button onClick={handleClose} style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#D5382F] tw-flex tw-justify-center tw-items-center'>
-                <CallEndIcon className='tw-text-white' sx={{ fontSize : 18 }} />
-              </button>
-
-              {/* <button style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
-                <MoreHorizIcon sx={{ fontSize : 18 }} />
-              </button> */}
+              </div>
 
             </div>
           )}
 
 
+          <div className={`tw-w-full tw-h-full tw-flex tw-flex-grow tw-justify-center tw-items-center ${callStatus === 'Calling...' ? 'tw-hidden' : ''}`} style={{ backgroundImage: 'url(./pattern.png)' }}>
+            <div className='tw-flex tw-justify-center tw-p-2'>
+              <video className='tw-rounded-md' style={{ height: '86vh' }} autoPlay ref={audioRef} />
+            </div>
+          </div>
+          
+
+          <div className='tw-bg-[#202020] tw-p-2 tw-items-center tw-flex tw-justify-center'>
+
+            {hasAnsweredCall && (
+              <div className='tw-flex  tw-gap-4'>
+                            
+                <button onClick={toggleMicMute} style={{ width : 40 , height : 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
+
+                  {isMicMuted ? (
+                    <MicOffIcon sx={{ fontSize: 18, color: '#D5382F' }} />
+                  ) : (
+                    <MicIcon sx={{ fontSize: 18 }} />
+                  )}
+
+                </button>
+
+                <button onClick={toggleVideoPuase} style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
+                  {isVideoPaused ? (
+                    <VideocamOffIcon sx={{ fontSize: 18, color: '#D5382F' }} />
+                  ) : (
+                    <VideocamIcon sx={{ fontSize: 18 }} />
+                  )}
+                </button>
+
+                <button onClick={handleClose} style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#D5382F] tw-flex tw-justify-center tw-items-center'>
+                  <CallEndIcon className='tw-text-white' sx={{ fontSize : 18 }} />
+                </button>
+
+              </div>
+            )}
+
+          </div>
 
         </div>
+
             
       </Dialog>
 
