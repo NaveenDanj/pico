@@ -8,7 +8,7 @@ import { TransitionProps } from '@mui/material/transitions';
 import AddIcCallIcon from '@mui/icons-material/AddIcCall';
 import { Avatar } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+// import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import MicOffIcon from '@mui/icons-material/MicOff';
@@ -82,7 +82,6 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
 
   useEffect(() => {
     if(localStorage.getItem('currentCallId')){
-      console.log('time : ' , initTime);
       if(initTime > 30) {
         handleClose();
       }
@@ -352,9 +351,9 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
               <CallEndIcon className='tw-text-white' sx={{ fontSize: 18 }} />
             </button>
 
-            <button style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
+            {/* <button style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
               <MoreHorizIcon sx={{ fontSize: 18 }} />
-            </button>
+            </button> */}
           </div>
         </div>
       </Dialog>

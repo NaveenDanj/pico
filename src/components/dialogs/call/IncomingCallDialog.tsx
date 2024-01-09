@@ -7,7 +7,7 @@ import Slide from '@mui/material/Slide';
 import { TransitionProps } from '@mui/material/transitions';
 import { Avatar } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+// import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import MicOffIcon from '@mui/icons-material/MicOff';
@@ -330,9 +330,9 @@ export default function IncomingCallDialog() {
                   <label className='tw-ml-4 tw-text-sm tw-my-auto'>Accept</label>
                 </button>
 
-                <button style={{ width : 60 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-my-auto tw-items-center'>
+                {/* <button style={{ width : 60 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-my-auto tw-items-center'>
                   <MoreHorizIcon sx={{ fontSize : 18 }} />
-                </button>
+                </button> */}
 
                           
               </div>
@@ -363,13 +363,13 @@ export default function IncomingCallDialog() {
                 <VideocamIcon sx={{ fontSize : 18 }} />
               </button>
 
-              <button onClick={() => handleAnswerCall()} style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#D5382F] tw-flex tw-justify-center tw-items-center'>
+              <button onClick={handleClose} style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#D5382F] tw-flex tw-justify-center tw-items-center'>
                 <CallEndIcon className='tw-text-white' sx={{ fontSize : 18 }} />
               </button>
 
-              <button style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
+              {/* <button style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
                 <MoreHorizIcon sx={{ fontSize : 18 }} />
-              </button>
+              </button> */}
 
             </div>
           )}
