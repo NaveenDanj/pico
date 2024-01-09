@@ -177,6 +177,7 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
 
   const handleClose = () => {
 
+
     if(peerRef.current){
       peerRef.current.destroy();
     }else{

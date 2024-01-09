@@ -198,6 +198,11 @@ export default function IncomingCallDialog() {
 
   const handleClose = () => {
 
+    if(!hasAnsweredCall){
+      handleRejectCall();
+    }
+
+
     stopMic();
 
     if(peerRef.current){
