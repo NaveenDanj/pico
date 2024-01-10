@@ -288,31 +288,27 @@ export default function IncomingCallDialog() {
         open={open}
         onClose={handleClose}
         TransitionComponent={Transition}
+        className='tw-flex tw-flex-col tw-h-[100vh] tw-w-[100vw]'
       >
-        <div className='tw-bg-[#272727]' >
-          <audio ref={audioRef} autoPlay />
-          <Toolbar>
+        <div className='tw-bg-[#272727] tw-flex tw-p-2 tw-my-auto  tw-px-5' >
 
-            <IconButton
-              edge="start"
-              color="inherit"
+          <IconButton
+            edge="start"
+            color="inherit"
+            className='tw-my-auto'
+            onClick={handleClose}
+            aria-label="close"
+          >
+            <CloseIcon />
+          </IconButton>
 
-
-              onClick={handleClose}
-              aria-label="close"
-            >
-              <CloseIcon />
-            </IconButton>
-
-            <label className='tw-text-lg tw-ml-3'>
+          <label className='tw-text-lg tw-ml-3 tw-my-auto'>
               Pico Call
-            </label>
-
-          </Toolbar>
+          </label>
 
         </div>
 
-        <div className='tw-w-full tw-h-full tw-flex tw-flex-col'>
+        <div style={{ height : 'calc(100vh - 112px)' }} className='tw-w-full tw-h-full tw-flex tw-flex-col'>
 
           {callStatus == 'Calling...' && (
             <div className='tw-w-full tw-h-full tw-flex tw-flex-grow tw-justify-center tw-items-center' style={{ backgroundImage: 'url(./pattern.png)' }}>
@@ -358,40 +354,40 @@ export default function IncomingCallDialog() {
           </div>
           
 
-          <div className='tw-bg-[#202020] tw-p-2 tw-items-center tw-flex tw-justify-center'>
-
-            {hasAnsweredCall && (
-              <div className='tw-flex  tw-gap-4'>
-                            
-                <button onClick={toggleMicMute} style={{ width : 40 , height : 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
-
-                  {isMicMuted ? (
-                    <MicOffIcon sx={{ fontSize: 18, color: '#D5382F' }} />
-                  ) : (
-                    <MicIcon sx={{ fontSize: 18 }} />
-                  )}
-
-                </button>
-
-                <button onClick={toggleVideoPuase} style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
-                  {isVideoPaused ? (
-                    <VideocamOffIcon sx={{ fontSize: 18, color: '#D5382F' }} />
-                  ) : (
-                    <VideocamIcon sx={{ fontSize: 18 }} />
-                  )}
-                </button>
-
-                <button onClick={handleClose} style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#D5382F] tw-flex tw-justify-center tw-items-center'>
-                  <CallEndIcon className='tw-text-white' sx={{ fontSize : 18 }} />
-                </button>
-
-              </div>
-            )}
-
-          </div>
 
         </div>
 
+        <div className='tw-bg-[#202020] tw-p-2 tw-items-center tw-flex tw-justify-center'>
+
+          {hasAnsweredCall && (
+            <div className='tw-flex  tw-gap-4'>
+                            
+              <button onClick={toggleMicMute} style={{ width : 40 , height : 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
+
+                {isMicMuted ? (
+                  <MicOffIcon sx={{ fontSize: 18, color: '#D5382F' }} />
+                ) : (
+                  <MicIcon sx={{ fontSize: 18 }} />
+                )}
+
+              </button>
+
+              <button onClick={toggleVideoPuase} style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
+                {isVideoPaused ? (
+                  <VideocamOffIcon sx={{ fontSize: 18, color: '#D5382F' }} />
+                ) : (
+                  <VideocamIcon sx={{ fontSize: 18 }} />
+                )}
+              </button>
+
+              <button onClick={handleClose} style={{ width : 40 , height: 40 , borderRadius: 20 }} className='tw-bg-[#D5382F] tw-flex tw-justify-center tw-items-center'>
+                <CallEndIcon className='tw-text-white' sx={{ fontSize : 18 }} />
+              </button>
+
+            </div>
+          )}
+
+        </div>
             
       </Dialog>
 

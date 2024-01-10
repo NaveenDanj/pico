@@ -1,6 +1,5 @@
 import * as React from 'react';
 import Dialog from '@mui/material/Dialog';
-import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Slide from '@mui/material/Slide';
@@ -85,7 +84,7 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
 
   useEffect(() => {
     if(localStorage.getItem('currentCallId')){
-      if(initTime > 30) {
+      if(initTime > 60) {
         handleClose();
       }
     }
@@ -309,28 +308,29 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
         open={open}
         onClose={handleClose}
         TransitionComponent={Transition}
+        className='tw-flex tw-flex-col tw-h-[100vh] tw-w-[100vw]'
       >
-        <div className='tw-bg-[#272727]' >
+
+        <div className='tw-bg-[#272727] tw-flex tw-p-2 tw-my-auto tw-px-5' >
           {/* <audio ref={audioRef} autoPlay /> */}
-          <Toolbar>
 
-            <IconButton
-              edge="start"
-              color="inherit"
-              onClick={handleClose}
-              aria-label="close"
-            >
-              <CloseIcon />
-            </IconButton>
+          <IconButton
+            edge="start"
+            color="inherit"
+            onClick={handleClose}
+            aria-label="close"
+            className='tw-my-auto '
+          >
+            <CloseIcon />
+          </IconButton>
 
-            <label className='tw-text-lg tw-ml-3'>
+          <label className='tw-text-lg tw-ml-3 tw-my-auto'>
               Pico Call
-            </label>
+          </label>
 
-          </Toolbar>
         </div>
 
-        <div className='tw-w-full tw-h-full tw-flex tw-flex-col '>
+        <div style={{ height : 'calc(100vh - 112px)' }} className='tw-w-full tw-flex tw-flex-col '>
           
           {callStatus == 'Calling...' && (
             <div className='tw-w-full tw-h-full tw-flex tw-justify-center tw-items-center' style={{ backgroundImage: 'url(./pattern.png)' }}>
@@ -353,45 +353,43 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
             </div>
           )}
 
-          <div className={`tw-w-full tw-h-full tw-flex tw-flex-grow tw-justify-center tw-items-center ${callStatus === 'Calling...' ? 'tw-hidden' : ''}`} style={{ backgroundImage: 'url(./pattern.png)' }}>
+          <div className={`tw-w-full tw-h-full tw-flex tw-justify-center tw-items-center ${callStatus === 'Calling...' ? 'tw-hidden' : ''}`} style={{ backgroundImage: 'url(./pattern.png)' }}>
             <div className='tw-flex tw-justify-center tw-p-2'>
-              <video className='tw-rounded-md' style={{ height: '86vh' }} autoPlay ref={audioRef} />
+              <video className='tw-rounded-md' style={{ height: '80vh' }} autoPlay ref={audioRef} />
             </div>
           </div>
           
-
-          <div className='tw-bg-[#202020] tw-p-2 tw-items-center tw-flex tw-justify-center'>
-            <div className='tw-flex  tw-gap-4'>
-              <button onClick={toggleMicMute} style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
-                {isMicMuted ? (
-                  <MicOffIcon sx={{ fontSize: 18, color: '#D5382F' }} />
-                ) : (
-                  <MicIcon sx={{ fontSize: 18 }} />
-                )}
-              </button>
-
-              <button onClick={toggleVideoPuase} style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
-                
-                {isVideoPaused ? (
-                  <VideocamOffIcon sx={{ fontSize: 18, color: '#D5382F' }} />
-                ) : (
-                  <VideocamIcon sx={{ fontSize: 18 }} />
-                )}
-
-              </button>
-
-              <button onClick={handleClose} style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#D5382F] tw-flex tw-justify-center tw-items-center'>
-                <CallEndIcon className='tw-text-white' sx={{ fontSize: 18 }} />
-              </button>
-
-              {/* <button style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
-                <MoreHorizIcon sx={{ fontSize: 18 }} />
-              </button> */}
-            </div>
-          </div>
-
         </div>
 
+        <div className='tw-bg-[#202020] tw-p-2 tw-items-center tw-flex tw-justify-center'>
+          <div className='tw-flex  tw-gap-4'>
+            <button onClick={toggleMicMute} style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
+              {isMicMuted ? (
+                <MicOffIcon sx={{ fontSize: 18, color: '#D5382F' }} />
+              ) : (
+                <MicIcon sx={{ fontSize: 18 }} />
+              )}
+            </button>
+
+            <button onClick={toggleVideoPuase} style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
+                
+              {isVideoPaused ? (
+                <VideocamOffIcon sx={{ fontSize: 18, color: '#D5382F' }} />
+              ) : (
+                <VideocamIcon sx={{ fontSize: 18 }} />
+              )}
+
+            </button>
+
+            <button onClick={handleClose} style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#D5382F] tw-flex tw-justify-center tw-items-center'>
+              <CallEndIcon className='tw-text-white' sx={{ fontSize: 18 }} />
+            </button>
+
+            {/* <button style={{ width: 40, height: 40, borderRadius: 20 }} className='tw-bg-[#2D2D2D] tw-flex tw-justify-center tw-items-center'>
+                <MoreHorizIcon sx={{ fontSize: 18 }} />
+              </button> */}
+          </div>
+        </div>
 
       </Dialog>
     </>
