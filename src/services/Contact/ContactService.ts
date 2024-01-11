@@ -255,7 +255,32 @@ export default {
       chatRoom : null
     };
 
-  }
+  },
+
+  getContactByUserUID: async (userId:string) => {
+
+    const user:User | null = await AuthService.checkAuthState();
+
+    if(!user) return {
+      success : false,
+      contact : null
+    };
+
+    const ref = collection(db, 'contacts');
+    const q = query(ref, where('ownerId', '==', user.uid ) , where('userUID' , '==' , userId) );
+    const res = await getDocs(q);
+
+    if(res.empty) return {
+      success : false,
+      contact : null
+    };
+    
+    return {
+      success : true,
+      contact : res.docs[0].data() as ChatContact
+    };
+
+  } 
 
 };
 

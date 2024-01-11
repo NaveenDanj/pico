@@ -2,6 +2,7 @@ import { DocumentChange, DocumentData, collection , doc, getDoc, getDocs, getFir
 import app from 'src/config/FirebaseConfig';
 import AuthService from '../Auth/AuthService';
 import { CallDTO } from 'src/types/dto';
+import ContactService from '../Contact/ContactService';
 
 
 const db = getFirestore(app);
@@ -89,6 +90,87 @@ export default {
       rejected: true
     });
     return true;
+  },
+
+  getCallLog: async (callId:string , calleeId:string , userId:string) => {
+    const docRef = doc(db , 'global_call' , calleeId , 'calls' , callId );
+    const _data = (await getDoc(docRef)).data();
+
+    console.log('_data => ' , _data);
+
+    if(!_data) return {
+      success : false,
+      doc: null
+    };
+
+    let dp = '';
+    let contactName = '';
+
+    if(userId == calleeId){
+
+      const userRef = doc(db , 'users' , _data.caller+'');
+      const userDoc = await getDoc(userRef);
+
+      console.log('user doc => ' , userDoc);
+
+      if(!userDoc.exists()) return {
+        success : false,
+        doc: null
+      };
+
+      const contact = await ContactService.getContactByUserUID(_data.caller);
+
+      if(!contact.success) return {
+        success : false,
+        doc: null
+      };
+
+
+      dp = userDoc.data().dp;
+      contactName = contact.contact?.contactName+'';
+
+    }else{
+
+      const userRef = doc(db , 'users' , _data.callee+'');
+      const userDoc = await getDoc(userRef);
+
+      console.log('userDoc' , userDoc.data());
+
+      if(!userDoc.exists()) return {
+        success : false,
+        doc: null
+      };
+
+      const contact = await ContactService.getContactByUserUID(_data.callee);
+
+      if(!contact.success) return {
+        success : false,
+        doc: null
+      };
+
+
+      dp = userDoc.data().dp;
+      contactName = contact.contact?.contactName+'';
+
+    }
+
+    const retData:CallDTO = {
+      id: docRef.id,
+      callerId: _data.caller,
+      calleeId: _data.callee,
+      callerPeerId: null,
+      calleePeerId: null,
+      timestamp: _data.timestamp,
+      answered: _data.answered,
+      dp: dp,
+      contactName: contactName
+    };
+
+    return {
+      success: true,
+      doc: retData
+    };
+
   }
 
 };

@@ -18,9 +18,10 @@ import {useEffect, useState } from 'react';
 import { collection, onSnapshot , getFirestore, query , where, orderBy, QueryDocumentSnapshot, DocumentData, doc, updateDoc, addDoc, DocumentChange } from 'firebase/firestore';
 import app from 'src/config/FirebaseConfig';
 import SimplePeer from 'simple-peer';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'src/store/store';
 import HandleCallService from 'src/services/Call/HandleCallService';
+import { addCallLogItem } from 'src/store/slices/CallInfoSlice';
 
 
 const db = getFirestore(app);
@@ -49,6 +50,7 @@ export default function IncomingCallDialog() {
   const [localStream , setLocalStream] = useState<MediaStream>();
   const [isMicMuted, setIsMicMuted] = useState(false);
   const [isVideoPaused, setIsVideoPaused] = useState(false);
+  const dispatch = useDispatch();
 
 
   useEffect(() => {
@@ -162,12 +164,16 @@ export default function IncomingCallDialog() {
         peerRef.current?.send('hello world');
       });
     
-      peerRef.current.on('close', () => {
+      peerRef.current.on('close', async () => {
         console.log('Peer connection closed');
+        const callData = await HandleCallService.getCallLog(latestCall?.doc.id + '' , latestCall?.doc.data().callee , user?.uid+'');
+        if(callData.success && callData.doc) dispatch(addCallLogItem(callData.doc));
         handleClose();
       });
     
-      peerRef.current.on('error', (err) => {
+      peerRef.current.on('error', async (err) => {
+        const callData = await HandleCallService.getCallLog(latestCall?.doc.id + '' , latestCall?.doc.data().callee , user?.uid+'');
+        if(callData.success && callData.doc) dispatch(addCallLogItem(callData.doc));
         console.error('Peer Error:', err);
         handleClose();
       });
@@ -184,6 +190,8 @@ export default function IncomingCallDialog() {
   
       setHasAnsweredCall(true);
     }catch(err){
+      const callData = await HandleCallService.getCallLog(latestCall?.doc.id + '' , latestCall?.doc.data().callee , user?.uid+'');
+      if(callData.success && callData.doc) dispatch(addCallLogItem(callData.doc));
       console.log('Error while receiving call');
       handleClose();
     }
@@ -269,6 +277,9 @@ export default function IncomingCallDialog() {
 
     if(!latestCall) return;
     await HandleCallService.rejectCall(latestCall);
+
+    const callData = await HandleCallService.getCallLog(latestCall?.doc.id + '' , latestCall?.doc.data().callee , user?.uid+'');
+    if(callData.success && callData.doc) dispatch(addCallLogItem(callData.doc));
 
     setOpen(false);
     setPeerSetted(false);

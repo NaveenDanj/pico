@@ -1,32 +1,17 @@
 import { Avatar } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import LinkIcon from '@mui/icons-material/Link';
-import { useEffect, useState } from 'react';
-import { CallDTO } from 'src/types/dto';
 import CallItem from 'src/components/call/CallItem';
-import HandleCallService from 'src/services/Call/HandleCallService';
+import { useSelector } from 'react-redux';
+import { RootState } from 'src/store/store';
 import LoadingComponent from 'src/components/dialogs/LoadingComponent';
+
+
 function Call() {
 
-  const [calls , setCalls] = useState<CallDTO[]>([]);
-  const [loading , setLoading] = useState(true);
+  const callLogs = useSelector((state: RootState) => state.callInfo.callLogs);
 
-  useEffect(() => {
-
-    const fetchUserCalls = async () => {
-      setLoading(true);
-      const calls = await HandleCallService.getUserCalls();
-      setLoading(false);
-      if(calls.success){
-        setCalls(calls.calls);
-      }
-    };
-
-    fetchUserCalls();
-
-  }, []);
-
-  if(loading) return (
+  if(callLogs.length == 0) return (
     <LoadingComponent />
   );
 
@@ -74,7 +59,7 @@ function Call() {
 
         </div>
 
-        {calls.map((call) => (<CallItem callItem={call} />) )}
+        {callLogs.map((call) => (<CallItem callItem={call} />) )}
       </div>
 
     </div>
