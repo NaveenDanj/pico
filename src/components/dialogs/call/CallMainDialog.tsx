@@ -19,9 +19,10 @@ import SimplePeer from 'simple-peer';
 import { v4 as uuidv4 } from 'uuid';
 import { collection , getFirestore, } from 'firebase/firestore';
 import app from 'src/config/FirebaseConfig';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'src/store/store';
 import HandleCallService from 'src/services/Call/HandleCallService';
+import { addCallLogItem } from 'src/store/slices/CallInfoSlice';
 const db = getFirestore(app);
 
 
@@ -55,10 +56,9 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
   const [isMicMuted, setIsMicMuted] = useState(false);
   const [isVideoPaused, setIsVideoPaused] = useState(false);
   const [callId , setCallId] = useState('');
-
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log('latest call => ' , localStream);
     initCall();
   }, [localStream]);
 
@@ -69,10 +69,8 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
     }, 1000);
 
     const updateCallDuration = () => {
-      console.log('status => ' , open , callStatus);
       if(localStorage.getItem('currentCallId') && open == true && callStatus == 'Calling...'){
         setInitTime(initTime + 1);
-        console.log('time : ' , initTime);
       }
     };
 
@@ -163,6 +161,9 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
           callEndTime: Date.now()
         });
 
+        const callData = await HandleCallService.getCallLog(localStorage.getItem('currentCallId') + '' , calleeId , user?.uid+'');
+        if(callData.success && callData.doc) dispatch(addCallLogItem(callData.doc));
+
         setPeerSetted(false);
         setStartTime(null);
         setCallStatus('Calling...');
@@ -172,7 +173,9 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
         stopMic();
       });
   
-      peerRef.current.on('error', (err) => {
+      peerRef.current.on('error', async (err) => {
+        const callData = await HandleCallService.getCallLog(localStorage.getItem('currentCallId') + '' , calleeId , user?.uid+'');
+        if(callData.success && callData.doc) dispatch(addCallLogItem(callData.doc));
         handleClose();
         console.error('Peer Error:', err);
       });
@@ -195,6 +198,8 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
       
     } catch (error) {
       console.error('Error during initCall:', error);
+      const callData = await HandleCallService.getCallLog(localStorage.getItem('currentCallId') + '' , calleeId , user?.uid+'');
+      if(callData.success && callData.doc) dispatch(addCallLogItem(callData.doc));
       handleClose();
     }
   };
@@ -290,8 +295,6 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
 
     return () => {
       clearInterval(intervalId);
-      // peerRef.current?.destroy();
-      // peerRef.current = null;
     };
 
   }, [startTime]);

@@ -27,6 +27,8 @@ import ChatGlobalInboxService from './services/Chat/ChatGlobalInboxService';
 import ContactService from './services/Contact/ContactService';
 import Call from './pages/App/Call';
 import IncomingCallDialog from './components/dialogs/call/IncomingCallDialog';
+import HandleCallService from './services/Call/HandleCallService';
+import { setCallLogs } from './store/slices/CallInfoSlice';
 
 const darkTheme = createTheme({
   palette: {
@@ -73,12 +75,22 @@ function App() {
 
 
   useEffect(() => {
+
     const fetchChats = async () => {
+      setLoading(true);
       const _chats = await ContactService.loadUserContact();
       dispatch(setChatrooms(_chats.contacts));
-    };
 
+      const calls = await HandleCallService.getUserCalls();
+      if(calls.success){
+        dispatch(setCallLogs(calls.calls));
+      }
+      setLoading(false);
+
+    };
+    
     fetchChats();
+    
   }, [dispatch]);
 
 

@@ -35,7 +35,7 @@ export interface ChatContact {
     userUID : string,
     contactName : string,
     blocked : boolean
-    dp: string,
+    dp?: string,
 }
 
 export interface Message {
@@ -94,7 +94,8 @@ export interface CallDTO {
     timestamp:Date
     answered:boolean,
     dp:string,
-    contactName:string
+    contactName:string,
+    rejected?: boolean 
 }
 
 export interface Attachment {
