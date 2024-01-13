@@ -29,6 +29,7 @@ import Call from './pages/App/Call';
 import IncomingCallDialog from './components/dialogs/call/IncomingCallDialog';
 import HandleCallService from './services/Call/HandleCallService';
 import { setCallLogs } from './store/slices/CallInfoSlice';
+import SetupNotificationService from './services/Notification/SetupNotificationService';
 
 const darkTheme = createTheme({
   palette: {
@@ -54,18 +55,25 @@ function App() {
         const data: UserData = AuthService.getUserData(user);
         dispatch(setUser(data));
         ChatGlobalInboxService.listenForIncomingMessages(user.uid, dispatch);
-
         const additionalData = await AuthService.getUserAdditionalData(user);
 
         if (additionalData) {
           dispatch(setUserAdditionalData(additionalData));
         }
 
+        const fcmToken = await SetupNotificationService.requestForToken();
+        SetupNotificationService.updateUserNotificationData(fcmToken);
+
+        
+
       } else {
         setAuthState(false);
       }
       setLoading(false);
     });
+
+
+    console.log('current fcm token => ' , );
 
     return () => {
       unsubscribe();
