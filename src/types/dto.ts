@@ -40,6 +40,7 @@ export interface ChatContact {
 }
 
 export interface Message {
+    type?: string;
     uid?:string;
     message: string;
     chatroomId: string;

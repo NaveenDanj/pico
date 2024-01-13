@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import FileUploadService from 'src/services/Chat/FileUploadService';
 import { Message } from 'src/types/dto';
 import ArticleIcon from '@mui/icons-material/Article';
+import moment from 'moment';
 
 interface ChatItemUserDTO {
   message: Message
@@ -117,8 +118,28 @@ function ChatItemUser({ message }: ChatItemUserDTO) {
 
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const formatDateDisplay = (date:any) => {
+    const d = moment(new Date(date.seconds * 1000));
+    const now = moment();
 
-  if(message.attachments.length > 0){
+    const diff = now.diff(d, 'days');
+  
+    if (diff === 0) {
+      return d.format('h:mmA');
+    } else if (diff === 1) {
+      return 'Yesterday';
+    } else if (now.year() === d.year()) {
+      return d.format('MMM D');
+    } else {
+      return d.format('YYYY/MM/DD');
+    }
+  };
+
+
+  if(message.type == 'Call'){
+    true;
+  }else if(message.attachments.length > 0){
     return (
       <div className="tw-w-full tw-flex tw-gap-3 tw-justify-end">
         <div className="tw-bg-[#035D4D] tw-flex tw-flex-col tw-rounded-sm tw-py-3 tw-px-2 tw-my-auto tw-min-w-[250px] tw-max-w-[400px]">
@@ -138,7 +159,7 @@ function ChatItemUser({ message }: ChatItemUserDTO) {
 
             <div className="tw-flex tw-justify-between tw-my-auto tw-max-h-[10px]">
               <label className="tw-text-[#64988E] tw-text-[10px] tw-font-semibold tw-my-auto" style={{ whiteSpace: 'nowrap' }}>
-          1:13 PM
+                {formatDateDisplay(message.timestamp)}
               </label>
             </div>
           </div>
@@ -157,7 +178,7 @@ function ChatItemUser({ message }: ChatItemUserDTO) {
           </p>
   
           <div className="tw-flex tw-justify-end">
-            <label className="tw-text-[#64988E] tw-text-[10px] tw-font-semibold">1:13 PM</label>
+            <label className="tw-text-[#64988E] tw-text-[10px] tw-font-semibold">{formatDateDisplay(message.timestamp)}</label>
           </div>
   
         </div>

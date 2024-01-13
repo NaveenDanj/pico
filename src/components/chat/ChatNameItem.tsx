@@ -28,16 +28,23 @@ function ChatNameItem({ chatItem }: ChatNameItemDto) {
     console.log(chatItem);
   };
 
-  const formatDate = (date: Date | null) => {
-    if (!date) {
-      return '';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const formatDateDisplay = (date:any) => {
+    const d = moment(new Date(date.seconds * 1000));
+    const now = moment();
+  
+    const diff = now.diff(d, 'days');
+    
+    if (diff === 0) {
+      return d.format('h:mmA');
+    } else if (diff === 1) {
+      return 'Yesterday';
+    } else if (now.year() === d.year()) {
+      return d.format('MMM D');
+    } else {
+      return d.format('YYYY/MM/DD');
     }
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return moment(new Date(date * 1000)).format('h:mm A');
-
   };
-
   const trimAndEllipsis = (inputString:string, maxLength:number) => {
     if (inputString.length > maxLength) {
       return inputString.substring(0, maxLength - 3) + '...';
@@ -58,7 +65,7 @@ function ChatNameItem({ chatItem }: ChatNameItemDto) {
           <div className='tw-flex tw-w-full tw-justify-between'>
             <label className='tw-text-sm tw-my-auto tw-font-medium'>{chatItem.contats.contactName}</label>
             <label className='tw-text-[10px] tw-my-auto tw-text-[#A3A3A3] tw-font-thin'>
-              {chatItem.lastTimeStamp && formatDate(chatItem.lastTimeStamp)}
+              {chatItem.lastTimeStamp && formatDateDisplay(chatItem.lastTimeStamp)}
             </label>
 
           </div>

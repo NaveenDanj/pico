@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import FileUploadService from 'src/services/Chat/FileUploadService';
 import { ChatRoomDTO, Message } from 'src/types/dto';
 import ArticleIcon from '@mui/icons-material/Article';
+import moment from 'moment';
 
 
 interface ChatItemOtherDTO {
@@ -183,6 +184,24 @@ function ChatItemOther({ message , userContact }: ChatItemOtherDTO) {
 
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const formatDateDisplay = (date:any) => {
+    const d = moment(new Date(date.seconds * 1000));
+    const now = moment();
+  
+    const diff = now.diff(d, 'days');
+    
+    if (diff === 0) {
+      return d.format('h:mmA');
+    } else if (diff === 1) {
+      return 'Yesterday';
+    } else if (now.year() === d.year()) {
+      return d.format('MMM D');
+    } else {
+      return d.format('YYYY/MM/DD');
+    }
+  };
+
 
   if(message.attachments.length > 0){
     return(
@@ -208,7 +227,7 @@ function ChatItemOther({ message , userContact }: ChatItemOtherDTO) {
           </p>
 
           <div className="tw-flex tw-justify-end">
-            <label className="tw-text-[#7D7D7D] tw-text-[10px] tw-font-semibold">1:13 PM</label>
+            <label className="tw-text-[#7D7D7D] tw-text-[10px] tw-font-semibold">{formatDateDisplay(message.timestamp)}</label>
           </div>
 
         </div>
@@ -232,7 +251,7 @@ function ChatItemOther({ message , userContact }: ChatItemOtherDTO) {
           </p>
 
           <div className="tw-flex tw-justify-end">
-            <label className="tw-text-[#7D7D7D] tw-text-[10px] tw-font-semibold">1:13 PM</label>
+            <label className="tw-text-[#7D7D7D] tw-text-[10px] tw-font-semibold">{formatDateDisplay(message.timestamp)}</label>
           </div>
 
         </div>
