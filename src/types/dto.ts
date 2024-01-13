@@ -20,7 +20,8 @@ export interface UserAdditionalData {
     readReceipt : boolean,
     archivedContact: string[],
     disappearingmessages: boolean,
-    created: Date | null
+    created: Date | null,
+    FCMToken?: string
 }
 
 export interface Contact {

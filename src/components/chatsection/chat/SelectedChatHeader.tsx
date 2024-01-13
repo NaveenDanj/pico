@@ -19,7 +19,7 @@ function SelectedChatHeader({selectedChat}: SelectedChatHeaderDTO) {
 
       <div className="tw-ml-2 tw-flex tw-gap-2">
 
-        <CallMainDialog calleeId={selectedChat.contats.userUID} calleeDp={selectedChat.contats.dp} calleeName={selectedChat.contats.contactName} />
+        <CallMainDialog calleeId={selectedChat.contats.userUID} calleeDp={selectedChat.contats.dp+''} calleeName={selectedChat.contats.contactName} />
 
         <div className="tw-w-[45px] tw-p-2 tw-flex tw-justify-center tw-rounded-md  hover:tw-bg-[#333333]">
           <SearchIcon sx={{ width: 16 }} />
