@@ -22,6 +22,7 @@ export default function FileUploadDialog() {
   const selectedChat = useSelector((state: RootState) => state.currentChat.selectedChat );
   const [loading , setLoading] = React.useState<boolean>(false);
 
+
   const handleClickOpen = () => {
     if(fileInputRef.current){
       fileInputRef.current.click();
@@ -120,7 +121,6 @@ export default function FileUploadDialog() {
   };
 
 
-
   return (
     <div>
 
@@ -136,7 +136,6 @@ export default function FileUploadDialog() {
 
       <Dialog
         open={open}
-        onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
         sx={{

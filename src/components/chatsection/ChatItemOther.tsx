@@ -202,8 +202,9 @@ function ChatItemOther({ message , userContact }: ChatItemOtherDTO) {
     }
   };
 
-
-  if(message.attachments.length > 0){
+  if(message.type == 'Call'){
+    true;
+  }else if(message.attachments.length > 0){
     return(
 
       <div className="tw-w-full tw-flex tw-gap-3">
@@ -234,7 +235,6 @@ function ChatItemOther({ message , userContact }: ChatItemOtherDTO) {
 
       </div>
     );
-
   }else{
 
     return (
