@@ -11,6 +11,7 @@ import FileUploadService from 'src/services/Chat/FileUploadService';
 import { useSelector } from 'react-redux';
 import { RootState } from 'src/store/store';
 import ChatGlobalInboxService from 'src/services/Chat/ChatGlobalInboxService';
+import AutorenewIcon from '@mui/icons-material/Autorenew';
 
 export default function FileUploadDialog() {
   const [open, setOpen] = React.useState(false);
@@ -19,6 +20,7 @@ export default function FileUploadDialog() {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [messageText , setMessageText] = React.useState('');
   const selectedChat = useSelector((state: RootState) => state.currentChat.selectedChat );
+  const [loading , setLoading] = React.useState<boolean>(false);
 
 
   const handleClickOpen = () => {
@@ -95,7 +97,7 @@ export default function FileUploadDialog() {
   const handleSendMessage = async () => {
     if(!selectedChat) return;
     const attachments:string[] = [];
-
+    setLoading(true);
     for(let i = 0; i < fileList.length; i++){
       const res = await FileUploadService.uploadFile(fileList[i] , selectedChat.uid);
 
@@ -104,7 +106,7 @@ export default function FileUploadDialog() {
       }
 
     }
-
+    
     const messageObject: Message = {
       message: messageText,
       chatroomId: selectedChat.uid,
@@ -113,10 +115,10 @@ export default function FileUploadDialog() {
       isReplied: false,
       repliedTo: null
     };
-    const res = await ChatGlobalInboxService.sendToGlobalIndex(messageObject, selectedChat.contats.userUID, selectedChat.uid);
-    console.log(res);
+    await ChatGlobalInboxService.sendToGlobalIndex(messageObject, selectedChat.contats.userUID, selectedChat.uid);
+    setLoading(false);
+    handleClose();
   };
-
 
 
   return (
@@ -134,7 +136,6 @@ export default function FileUploadDialog() {
 
       <Dialog
         open={open}
-        onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
         sx={{
@@ -150,7 +151,7 @@ export default function FileUploadDialog() {
 
         <div className='tw-flex tw-flex-col tw-w-full tw-h-full'>
             
-          <div className="tw-w-full tw-flex tw-justify-end ">
+          <div style={{ display : loading ? 'none' : '' }} className="tw-w-full tw-flex tw-justify-end">
             <div onClick={() => handleClose()} className=" tw-p-1 tw-mr-2 tw-mt-1 tw-flex tw-items-center tw-justify-center tw-rounded-md tw-bg-[#383838] ">
               <CloseIcon className='tw-cursor-pointer' sx={{ fontSize : 20 }} />
             </div>
@@ -178,7 +179,7 @@ export default function FileUploadDialog() {
                 {fileList.map((_file:File , index:number) => (
                   <div onClick={() => setSelectedFileDisplay(index)} key={index} style={{ border : index == selectedFileDisplay? '1px solid rgba(27,147,85,0.7)' : '1px solid rgba(255,255,255,0.7)' , borderRadius : 5 }} className=' tw-group tw-p-2 tw-flex tw-justify-center tw-items-center tw-cursor-pointer'>
                     <ArticleIcon sx={{ fontSize : 25 , color: index == selectedFileDisplay? '#1B9355' : 'white'}} />
-                    <div onClick={() => handleRemoveFile(index)} className='tw-p-1 group-hover:tw-flex tw-hidden tw-justify-center tw-items-center'>
+                    <div onClick={() => !loading? handleRemoveFile(index) : true} className='tw-p-1 group-hover:tw-flex tw-hidden tw-justify-center tw-items-center'>
                       <CloseIcon className='tw-bg-[#383838] ' sx={{ fontSize : 15 }} />
                     </div>
                   </div>
@@ -188,14 +189,12 @@ export default function FileUploadDialog() {
 
               <div className='tw-flex tw-p-2 tw-gap-3'>
 
-                
-              
-                <div onClick={() => handleClickOpen()} className="tw-w-[45px] tw-p-1 tw-flex tw-items-center tw-justify-center  tw-rounded-md tw-bg-[#333333]  hover:tw-bg-[#383838]">
+                <div onClick={() => !loading? handleClickOpen() : true} className="tw-w-[45px] tw-p-1 tw-flex tw-items-center tw-justify-center  tw-rounded-md tw-bg-[#333333]  hover:tw-bg-[#383838]">
                   <AddIcon sx={{ width: 16 }} />
                 </div>
 
-                <div onClick={handleSendMessage} className="tw-w-[50px]  tw-p-1 tw-flex tw-items-center tw-justify-center tw-rounded-md tw-bg-[#1DAA61]  hover:tw-bg-[#1B9355]">
-                  <SendIcon sx={{ width: 16 }} />
+                <div onClick={() => !loading? handleSendMessage() : true} className="tw-w-[50px]  tw-p-1 tw-flex tw-items-center tw-justify-center tw-rounded-md tw-bg-[#1DAA61]  hover:tw-bg-[#1B9355]">
+                  {loading ? <AutorenewIcon className="tw-animate-spin" /> : <SendIcon sx={{ width: 16 }} />}
                 </div>
               </div>
 
