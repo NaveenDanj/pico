@@ -81,12 +81,12 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
   } , [open, callStatus , initTime]);
 
   useEffect(() => {
-    if(localStorage.getItem('currentCallId')){
+    if(localStorage.getItem('currentCallId') && callStatus == 'Calling...'){
       if(initTime > 60) {
         handleClose();
       }
     }
-  }, [initTime]);
+  }, [callStatus, initTime]);
 
 
   const initCall = async () => {
@@ -244,8 +244,13 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
   };
 
   const accessMedia = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-    setLocalStream(stream);
+    try{
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+      setLocalStream(stream);
+    }catch(err){
+      console.log('access media error : ' , err);
+      handleClose();
+    }
   };
 
   const toggleMicMute = () => {
@@ -299,6 +304,27 @@ export default function CallMainDialog({ calleeId , calleeName , calleeDp }:Call
 
   }, [startTime]);
 
+
+  // const handleRejectCall = async () => {
+  //   const latestCall = localStorage.getItem('currentCallId');
+  //   if(!latestCall) return;
+
+  //   const callDocRef = doc(db , 'global_call' , calleeId , 'calls' , latestCall);
+
+  //   await updateDoc(callDocRef , {
+  //     rejected: true
+  //   });
+
+  //   const callDocData = (await getDoc(callDocRef)).data();
+
+  //   const callData = await HandleCallService.getCallLog(callDocData?.doc.id + '' , callDocData?.doc.data().callee , user?.uid+'');
+  //   if(callData.success && callData.doc) dispatch(addCallLogItem(callData.doc));
+
+  //   setOpen(false);
+  //   setPeerSetted(false);
+  //   setStartTime(null);
+  //   setCallStatus('Calling...');
+  // };
 
   return (
     <>
