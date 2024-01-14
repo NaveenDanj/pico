@@ -91,33 +91,44 @@ export default function IncomingCallDialog() {
         where('timestamp', '>', new Date()),
         orderBy('timestamp')  
       );
+      
 
       onSnapshot(q , snapshot => {
+
         snapshot.docChanges().forEach(change => {
+
           if (change.type === 'added' && !peerSetted && !callAnswered && !hasAnsweredCall && isMounted) {
+
             const data = change.doc.data();
+
             console.log('new call found! => ' , data , change.doc.ref);
+
             if(data.callee == user.uid){
-              setLatestCall(change);
-              setOpen(true);
+              
+              if(!open){
+                setLatestCall(change);
+                handleOpen();
+              }
               
               onSnapshot(change.doc.ref , doc => {
-                
+                  
                 if(doc.exists()){
                   const _docData = doc.data();
                   if(_docData.rejected == true){
                     handleClose();
                   }
-                  
                 }
 
               });
 
             }
+
           }
 
         });
+
       });
+
     }
 
 
@@ -206,8 +217,13 @@ export default function IncomingCallDialog() {
 
 
   const accessMedia = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-    setLocalStream(stream);
+    try{
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+      setLocalStream(stream);
+    }catch(err){
+      console.log('access media error : ' , err);
+      handleClose();
+    }
   };
 
   const handleAnswerCall = async () => {
@@ -289,7 +305,11 @@ export default function IncomingCallDialog() {
     setCallAnswered(false);
   };
 
-
+  const handleOpen = () => {
+    if(!open){
+      setOpen(true);
+    }
+  };
 
   return (
     <>
