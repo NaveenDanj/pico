@@ -4,7 +4,6 @@ import { doc, setDoc } from 'firebase/firestore';
 import { UserAdditionalData, UserData } from 'src/types/dto';
 import app from 'src/config/FirebaseConfig';
 
-
 const auth = getAuth(app);
 const db = getFirestore(app);
 
@@ -182,8 +181,22 @@ export default {
 
     return data;
 
-  }
+  },
 
+  _getUserAdditionalData: async () => {
+    const user = auth.currentUser;
+    if(!user) return null;
+
+    const ref = doc(db , 'users' , user.uid);
+    const d = await getDoc(ref);
+
+    if(!d.exists()){
+      return null;
+    }
+        
+    const data = d.data() as UserAdditionalData;
+    return data;
+  }
 
 };
 function _getUserData(user:User) {
