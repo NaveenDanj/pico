@@ -2,8 +2,10 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import {doc , updateDoc } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore'; 
 import app from 'src/config/FirebaseConfig';
+import AuthService from '../Auth/AuthService';
+import { User, getAuth } from 'firebase/auth';
 
-// const auth = getAuth(app);
+const auth = getAuth(app);
 const db = getFirestore(app);
 
 
@@ -37,11 +39,14 @@ export default {
     }
   },
 
-  updateDisplayName: async (fname:string , lname:string , uid:string): Promise<boolean> => {
+  updateDisplayName: async (fname:string , lname:string ): Promise<boolean> => {
     try {
-            
+      const user:User | null = await AuthService.checkAuthState();
+
+      if(!user) return false;
+
       // update aditional data field
-      const documentRef = doc(db, 'users', uid);
+      const documentRef = doc(db, 'users', user.uid);
       await updateDoc(documentRef, {
         FirstName : fname,
         LastName: lname
@@ -55,11 +60,14 @@ export default {
     }
   },
 
-  updateAbout: async (about:string , uid:string): Promise<boolean> => {
+  updateAbout: async (about:string): Promise<boolean> => {
     try {
-            
+        
+      const user:User | null = auth.currentUser;
+
+      if(!user) return false;
       // update aditional data field
-      const documentRef = doc(db, 'users', uid);
+      const documentRef = doc(db, 'users', user.uid);
       await updateDoc(documentRef, {
         about : about
       });
