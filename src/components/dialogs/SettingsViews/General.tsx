@@ -1,8 +1,56 @@
 import { FormControlLabel, Switch } from '@mui/material';
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import AuthService from 'src/services/Auth/AuthService';
+import { setCallLogs, setCurrentCall } from 'src/store/slices/CallInfoSlice';
+import { setChatrooms } from 'src/store/slices/ChatroomSlice';
+import { setMessages, setSelectedChat } from 'src/store/slices/CurrentChatSlice';
+import { setUser, setUserAdditionalData } from 'src/store/slices/UserSlice';
+import LoadingDialog from '../LoadingDialog';
 
 function General() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  
+  const [loading , setLoading] = useState(false);
+
+
+  const handleLogout = async () => {
+    try{
+
+      setLoading(true);
+      await AuthService.logout();
+
+      dispatch(setSelectedChat(null));
+      dispatch(setMessages([]));
+
+      dispatch(setUser(null));
+      dispatch(setUserAdditionalData(null));
+
+      dispatch(setChatrooms([]));
+
+      dispatch(setCurrentCall(null));
+      dispatch(setCallLogs([]));
+
+      dispatch(setChatrooms([]));
+
+      
+      setLoading(false);
+      navigate('/auth');
+  
+    }catch(err){
+      console.log(err);
+    }
+  };
+
+
+
   return (
     <div className='tw-w-full'>
+
+      <LoadingDialog isOpen={loading} />
+
       <h2 className='tw-mt-1 tw-text-lg tw-font-semibold'>General</h2>
 
       <div className='tw-w-full tw-mt-3 tw-flex tw-flex-col tw-gap-1'>
@@ -22,7 +70,7 @@ function General() {
       </div>
 
       <div className='tw-w-full tw-mt-4 tw-flex tw-flex-col tw-gap-1'>
-        <button className='tw-w-[100px] tw-bg-[#373737] hover:tw-bg-[#414141] tw-text-xs tw-text-white'>Logout</button>
+        <button onClick={handleLogout} className='tw-w-[100px] tw-bg-[#373737] hover:tw-bg-[#414141] tw-text-xs tw-text-white'>Logout</button>
         <label className='tw-text-xs tw-text-[#A4A4A4] tw-mt-1'>Your chat history will be cleared when you log out</label>
       </div>
 

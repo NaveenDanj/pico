@@ -18,7 +18,7 @@ export const currentCallSlice = createSlice({
   initialState,
   reducers: {
 
-    setCurrentCall: (state , action: PayloadAction<CallDTO>) => {
+    setCurrentCall: (state , action: PayloadAction<CallDTO | null>) => {
       state.selectedCall = action.payload;
     },
 

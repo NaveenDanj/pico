@@ -42,7 +42,7 @@ export const currentChatSlice = createSlice({
       }
     },
 
-    setSelectedChat: (state , action: PayloadAction<ChatRoomDTO>) => {
+    setSelectedChat: (state , action: PayloadAction<ChatRoomDTO | null>) => {
       state.selectedChat = action.payload;
     },
 
