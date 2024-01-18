@@ -54,8 +54,8 @@ function General() {
       <h2 className='tw-mt-1 tw-text-lg tw-font-semibold'>General</h2>
 
       <div className='tw-w-full tw-mt-3 tw-flex tw-flex-col tw-gap-1'>
-        <label className='tw-text-md tw-font-thin'>Login</label>
-        <label className='tw-text-xs tw-text-[#A4A4A4] tw-mt-1'>Start Pico at login</label>
+        <label className='tw-text-md tw-font-thin'>Lock Screen</label>
+        <label className='tw-text-xs tw-text-[#A4A4A4] tw-mt-1'>Enable lock screen after 5 mins.</label>
         <div className='tw-flex tw-mt-0'>
           <FormControlLabel className='tw-my-auto' control={<Switch className='tw-ml-1' size="small" defaultChecked />} label="" />
           <label className='tw-text-xs tw-text-[#A4A4A4] tw-my-auto'>Off</label>
